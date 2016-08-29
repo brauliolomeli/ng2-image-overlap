@@ -1,0 +1,38 @@
+.pt {
+    width: 10px;
+    height: 10px;
+    background-color: blue;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+    position: absolute;
+    -webkit-transform: translate(0px, 0px);
+          transform: translate(0px, 0px);
+}
+#drag-me::before {
+  content: "#" attr(id);
+  font-weight: bold;
+}
+.drag-container {
+    width: 602px;
+    height: 363px;
+    border: 1px solid black;
+    background-image: url(images/house.png);
+}
+.img {
+    position: absolute;
+    width: 239px;
+    height: 144px;
+    background-image: url(./images/door.png);
+}
+#tl {
+    top: 5px;
+    left: 5px;
+}
+#tr {
+    top: 5px;
+}
+#bl {
+    top: 10px;
+    left: 5px;
+}
