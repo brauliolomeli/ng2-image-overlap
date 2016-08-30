@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { PerspectiveTransform } from '../lib/PerspectiveTransform';
 import * as interact from 'interact.js';
 let instance: OverlapperComponent;
@@ -10,33 +10,80 @@ let instance: OverlapperComponent;
 })
 export class OverlapperComponent implements OnInit {
   transform: PerspectiveTransform;
-  imageBase: any;
-  imageOverlapped: any;
+  @Input() pointSize: number;
+  dataImageOverlapped: any;
+  // Background image
+  _imageBase: string;
+  get imageBase(): string {
+      return this._imageBase;
+  }
+  @Input('imageBase') set imageBase(value: string) {
+      this._imageBase = value;
+      console.log('set imageBase', value);
+  }
+  // Overlapped image
+  _imageOverlapped: string;
+  get imageOverlapped(): string {
+      return this._imageOverlapped;
+  }
+  @Input('imageOverlapped') set imageOverlapped(value: string) {
+      this._imageOverlapped = value;
+      this.dataImageOverlapped = new Image();
+      this.dataImageOverlapped.onload = () => {
+        this.initPerspectiveTransform();
+      }
+      this.dataImageOverlapped.src = value;
+  }
+  // Width
+  _width: number;
+  get width(): number {
+      return this._width;
+  }
+  @Input('width') set width(value: number) {
+      this._width = value;
+      this.initPerspectiveTransform();
+  }
+  // Height
+  _height: number;
+  get height(): number {
+      return this._height;
+  }
+  @Input('height') set height(value: number) {
+      this._height = value;
+      this.initPerspectiveTransform();
+  }
+  // imageBase: any;
+  // imageOverlapped: any;
   constructor() {
     instance = this;
   }
+  initPerspectiveTransform() {
+    if (this.width && this.height && this.imageOverlapped) {
+      let img = document.getElementById('image');
+      this.transform = new PerspectiveTransform(img, this.dataImageOverlapped.width, this.dataImageOverlapped.height, true);
+      let startX = Number(this.width / 3);
+      let endX = startX * 2;
+      let startY = Number(this.height / 3);
+      let endY = startY * 2;
+      this.initPoint('br', endX, endY);
+      this.initPoint('bl', startX, endY);
+      this.initPoint('tr', endX, startY);
+      this.initPoint('tl', startX, startY);
+    }
+  }
   ngOnInit() {
     interact('.draggable')
-      .draggable({
-        inertia: true,
-        restrict: {
-          restriction: 'parent',
-          endOnly: true,
-          elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-        },
-        autoScroll: false,
-        onmove: instance.dragMoveListener,
-        onend: null
-      });
-    let IMG_WIDTH = 239;
-    let IMG_HEIGHT = 144;
-
-    let img = document.getElementById('image');
-    this.transform = new PerspectiveTransform(img, IMG_WIDTH, IMG_HEIGHT, true);
-    this.initPoint('br', 423, 238);
-    this.initPoint('bl', 183, 238);
-    this.initPoint('tr', 423, 132);
-    this.initPoint('tl', 183, 132);
+    .draggable({
+      inertia: true,
+      restrict: {
+        restriction: 'parent',
+        endOnly: true,
+        elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+      },
+      autoScroll: false,
+      onmove: instance.dragMoveListener,
+      onend: null
+    });
   }
   updatePoint(id, x, y) {
     if (id === 'br') {

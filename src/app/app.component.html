@@ -1,1 +1,22 @@
-<app-overlapper></app-overlapper>
+Width
+<br>
+<input type="range" name="width" min="30" max="1800" [(ngModel)]="width">
+<br>
+Heigth
+<br>
+<input type="range" name="height" min="30" max="1200" [(ngModel)]="height">
+<br>
+Select House 
+<br>
+<img *ngFor="let house of houses" [src]="house" width="80" (click)="imageBase=house"><br>
+Select Door
+<br>
+<img *ngFor="let door of doors" [src]="door" width="80" (click)="imageOverlapped=door">
+<br>
+<br>
+<app-overlapper
+    [imageBase]="imageBase"
+    [imageOverlapped]="imageOverlapped"
+    [width]="width"
+    [height]="height"
+    [pointSize]="pointSize"></app-overlapper>

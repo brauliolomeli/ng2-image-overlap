@@ -1,7 +1,9 @@
-<div class="drag-container">
-    <div class="img" id="image"></div>
-    <div id="tl" class="pt draggable"></div>
-    <div id="tr" class="pt draggable"></div>
-    <div id="bl" class="pt draggable"></div>
-    <div id="br" class="pt draggable"></div>
+<div class="drag-container"
+    [ngStyle]="{'width' : width + 'px', 'height': height + 'px', 'background-image': 'url(' + imageBase + ')' }">
+    <div class="img" id="image" 
+        [ngStyle]="{'width' : dataImageOverlapped.width + 'px', 'height': dataImageOverlapped.height + 'px', 'background-image': 'url(' + imageOverlapped + ')' }"></div>
+    <div id="tl" class="pt draggable" [ngStyle]="{'width': pointSize + 'px', 'height': pointSize + 'px', 'top': '-' + pointSize/2+'px', 'left': '-' + pointSize/2+'px'}"></div>
+    <div id="tr" class="pt draggable" [ngStyle]="{'width': pointSize + 'px', 'height': pointSize + 'px', 'top': '-' + pointSize/2+'px'}"></div>
+    <div id="bl" class="pt draggable" [ngStyle]="{'width': pointSize + 'px', 'height': pointSize + 'px', 'left': '-' + pointSize/2+'px'}"></div>
+    <div id="br" class="pt draggable" [ngStyle]="{'width': pointSize + 'px', 'height': pointSize + 'px'}"></div>
 </div>
