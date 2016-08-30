@@ -12,7 +12,27 @@
     border: 1px solid black;
     background-size: 100%;
     position: relative;
+    overflow: hidden;
 }
 .img {
     position: absolute;
+}
+
+
+/*.crop {
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+    border: solid 1px red;
+}*/
+
+.imageDrag {
+    /*width: 400px;
+    height: 400px;*/
+    border: solid 1px yellow;
+    cursor:move;
+    position: absolute;
+    -webkit-transform: translate(0px, 0px);
+          transform: translate(0px, 0px);
+
 }

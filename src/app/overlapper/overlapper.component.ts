@@ -9,9 +9,13 @@ let instance: OverlapperComponent;
   styleUrls: ['overlapper.component.css']
 })
 export class OverlapperComponent implements OnInit {
+  widthBase: number = 0;
   transform: PerspectiveTransform;
   @Input() pointSize: number;
+  dataImageBase: any;
   dataImageOverlapped: any;
+  height: number;
+  factor: number;
   // Background image
   _imageBase: string;
   get imageBase(): string {
@@ -19,7 +23,18 @@ export class OverlapperComponent implements OnInit {
   }
   @Input('imageBase') set imageBase(value: string) {
       this._imageBase = value;
-      console.log('set imageBase', value);
+      this.dataImageBase = new Image();
+      this.dataImageBase.onload = () => {
+        this.factor = this.width / this.dataImageBase.width;
+        this.height = this.width * this.dataImageBase.height / this.dataImageBase.width;
+        
+        this.initPerspectiveTransform();
+      }
+      this.dataImageBase.src = value;
+  }
+  updateWidthBase() {
+    this.widthBase = this.factor * this.width * (this.zoom / 100);
+    console.log('updateWidthBase', this.widthBase);
   }
   // Overlapped image
   _imageOverlapped: string;
@@ -43,19 +58,76 @@ export class OverlapperComponent implements OnInit {
       this._width = value;
       this.initPerspectiveTransform();
   }
-  // Height
-  _height: number;
-  get height(): number {
-      return this._height;
+  // lockHouse
+  _lockHouse: boolean;
+  get lockHouse(): boolean {
+      return this._lockHouse;
   }
-  @Input('height') set height(value: number) {
-      this._height = value;
-      this.initPerspectiveTransform();
+  @Input('lockHouse') set lockHouse(value: boolean) {
+      this._lockHouse = value;
+      this.toggleDragHouse();
   }
+  // lockDoor
+  _lockDoor: boolean;
+  get lockDoor(): boolean {
+      return this._lockDoor;
+  }
+  @Input('lockDoor') set lockDoor(value: boolean) {
+      this._lockDoor = value;
+      this.toggleDragDoor();
+  }
+  // zoom
+  _zoom: number;
+  get zoom(): number {
+      return this._zoom;
+  }
+  @Input('zoom') set zoom(value: number) {
+      this._zoom = value;
+      this.updateWidthBase();
+      // this.initPerspectiveTransform();
+  }
+
+  
   // imageBase: any;
   // imageOverlapped: any;
   constructor() {
     instance = this;
+  }
+  toggleDragHouse() {
+    if (this.lockHouse) {
+      interact('.imageDrag').draggable({enabled: false});
+    } else {
+      interact('.imageDrag')
+      .draggable({
+        inertia: true,
+        restrict: {
+          restriction: 'parent',
+          endOnly: false,
+          elementRect: { top: 0.5, left: 0.5, bottom: 0.5, right: 0.5 },
+        },
+        autoScroll: false,
+        onmove: instance.dragMoveImageListener,
+        onend: null
+      });
+    }
+  }
+  toggleDragDoor() {
+    if (this.lockDoor) {
+      interact('.draggable').draggable({enabled: false});
+    } else {
+      interact('.draggable')
+      .draggable({
+        inertia: true,
+        restrict: {
+          restriction: 'parent',
+          endOnly: true,
+          elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+        },
+        autoScroll: false,
+        onmove: instance.dragMoveListener,
+        onend: null
+      });
+    }
   }
   initPerspectiveTransform() {
     if (this.width && this.height && this.imageOverlapped) {
@@ -71,20 +143,7 @@ export class OverlapperComponent implements OnInit {
       this.initPoint('tl', startX, startY);
     }
   }
-  ngOnInit() {
-    interact('.draggable')
-    .draggable({
-      inertia: true,
-      restrict: {
-        restriction: 'parent',
-        endOnly: true,
-        elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-      },
-      autoScroll: false,
-      onmove: instance.dragMoveListener,
-      onend: null
-    });
-  }
+  ngOnInit() {}
   updatePoint(id, x, y) {
     if (id === 'br') {
       this.transform.bottomRight.x = x + 5;
@@ -104,6 +163,20 @@ export class OverlapperComponent implements OnInit {
     } else {
       console.log('Error, should hide image or something');
     }
+  }
+  dragMoveImageListener(event) {
+    let target = event.target,
+      // keep the dragged position in the data-x/data-y attributes
+      x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+      y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+    // translate the element
+    target.style.webkitTransform =
+      target.style.transform =
+      'translate(' + x + 'px, ' + y + 'px)';
+    // update the posiion attributes
+    target.setAttribute('data-x', x);
+    target.setAttribute('data-y', y);
+    //instance.updatePoint(target.getAttribute('id'), x, y);
   }
   dragMoveListener(event) {
     let target = event.target,
