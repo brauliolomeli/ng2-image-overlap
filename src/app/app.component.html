@@ -16,7 +16,7 @@ Select Door
 <br>
 House zoom ({{zoom / 100}})
 <br>
-<input type="range" name="zoom" min="20" max="700" [(ngModel)]="zoom" [disabled]="lockHouse">
+<input type="range" name="zoom" min="20" max="700" [(ngModel)]="zoom" [disabled]="lockHouse"> <button (click)="zoom=100" [disabled]="lockHouse">Reset Zoom</button>
 <br>
 Lock door<input type="checkbox" name="lock-door" [(ngModel)]="lockDoor">
 <br>

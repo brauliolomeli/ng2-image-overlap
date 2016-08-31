@@ -1,7 +1,7 @@
 <div class="drag-container"
     [ngStyle]="{'width' : width + 'px', 'height': height + 'px' }">
     <!--, 'background-image': 'url(' + imageBase + ')'-->
-    <img [src]="imageBase" class="imageDrag" [ngStyle]="{'width' : widthBase + 'px'}" />
+    <img [src]="imageBase" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" />
     <div class="img" id="image" 
         [ngStyle]="{'width' : dataImageOverlapped.width + 'px', 'height': dataImageOverlapped.height + 'px', 'background-image': 'url(' + imageOverlapped + ')' }"></div>
     <div id="tl" class="pt draggable" [ngStyle]="{'visibility': (lockDoor ? 'hidden':'visible'), 'width': pointSize + 'px', 'height': pointSize + 'px', 'top': '-' + pointSize/2+'px', 'left': '-' + pointSize/2+'px'}"></div>

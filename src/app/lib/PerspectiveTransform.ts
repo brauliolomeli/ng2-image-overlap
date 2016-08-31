@@ -4,14 +4,7 @@
  *  http://www.is-real.net/experiments/css3/wonder-webkit/js/real/display/PerspectiveTransform.js
  */
 
-export class Point {
-    x: number;
-    y: number;
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-}
+import { Point } from './Point';
 
 export class PerspectiveTransform {
     // From constructor

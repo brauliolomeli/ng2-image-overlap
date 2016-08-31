@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PerspectiveTransform } from '../lib/PerspectiveTransform';
+import { Point } from '../lib/Point';
 import * as interact from 'interact.js';
 let instance: OverlapperComponent;
 
@@ -10,6 +11,13 @@ let instance: OverlapperComponent;
 })
 export class OverlapperComponent implements OnInit {
   widthBase: number = 0;
+  locationImageBase: Point = new Point(0, 0);
+  locationPoints: any = {
+    bl: new Point(0, 0),
+    br: new Point(0, 0),
+    tl: new Point(0, 0),
+    tr: new Point(0, 0),
+  };
   transform: PerspectiveTransform;
   @Input() pointSize: number;
   dataImageBase: any;
@@ -25,16 +33,12 @@ export class OverlapperComponent implements OnInit {
       this._imageBase = value;
       this.dataImageBase = new Image();
       this.dataImageBase.onload = () => {
-        this.factor = this.width / this.dataImageBase.width;
+        this.factor = this.dataImageBase.width / this.width;
         this.height = this.width * this.dataImageBase.height / this.dataImageBase.width;
-        
+        this.updateWidthBase();
         this.initPerspectiveTransform();
-      }
+      };
       this.dataImageBase.src = value;
-  }
-  updateWidthBase() {
-    this.widthBase = this.factor * this.width * (this.zoom / 100);
-    console.log('updateWidthBase', this.widthBase);
   }
   // Overlapped image
   _imageOverlapped: string;
@@ -46,7 +50,7 @@ export class OverlapperComponent implements OnInit {
       this.dataImageOverlapped = new Image();
       this.dataImageOverlapped.onload = () => {
         this.initPerspectiveTransform();
-      }
+      };
       this.dataImageOverlapped.src = value;
   }
   // Width
@@ -82,12 +86,34 @@ export class OverlapperComponent implements OnInit {
       return this._zoom;
   }
   @Input('zoom') set zoom(value: number) {
-      this._zoom = value;
-      this.updateWidthBase();
-      // this.initPerspectiveTransform();
+    let previousZoom = this._zoom;
+    this._zoom = value;
+    this.updateWidthBase();
+    if (value === 100) {
+      let target = document.getElementById('imageBase');
+      this.moveHouse(target, -this.locationImageBase.x, -this.locationImageBase.y);
+    }
+    // this.initPerspectiveTransform();
+    if (instance.lockDoor) {
+      let points = ['tl', 'tr', 'bl', 'br'];
+      points.forEach(point => {
+        let instPoint = this.locationPoints[point];
+        let pointDom = document.getElementById(point);
+        let relativeX = instPoint.x - this.locationImageBase.x;
+        let newX = (relativeX * this.zoom / previousZoom) + this.locationImageBase.x;
+        let dx = newX - instPoint.x;
+        let relativeY = instPoint.y - this.locationImageBase.y;
+        let newY = (relativeY * this.zoom / previousZoom) + this.locationImageBase.y;
+        let dy = newY - instPoint.y;
+        this.movePoint(pointDom, dx, dy);
+      });
+    }
   }
 
-  
+  updateWidthBase() {
+    this.widthBase = this.dataImageBase.width * (this.zoom / 100) / this.factor;
+    console.log('calculó',this.widthBase, 'img w', this.dataImageBase.width, 'factor', this.factor, 'zoom', this.zoom);
+  }
   // imageBase: any;
   // imageOverlapped: any;
   constructor() {
@@ -146,17 +172,13 @@ export class OverlapperComponent implements OnInit {
   ngOnInit() {}
   updatePoint(id, x, y) {
     if (id === 'br') {
-      this.transform.bottomRight.x = x + 5;
-      this.transform.bottomRight.y = y + 5;
+      this.transform.bottomRight.updateCoords(x + 5, y + 5);
     } else if (id === 'bl') {
-      this.transform.bottomLeft.x = x;
-      this.transform.bottomLeft.y = y + 5;
+      this.transform.bottomLeft.updateCoords(x, y + 5);
     } else if (id === 'tl') {
-      this.transform.topLeft.x = x;
-      this.transform.topLeft.y = y;
+      this.transform.topLeft.updateCoords(x, y);
     } else if (id === 'tr') {
-      this.transform.topRight.x = x + 5;
-      this.transform.topRight.y = y;
+      this.transform.topRight.updateCoords(x + 5, y);
     }
     if (this.transform.checkError() === 0) {
       this.transform.update();
@@ -165,42 +187,52 @@ export class OverlapperComponent implements OnInit {
     }
   }
   dragMoveImageListener(event) {
-    let target = event.target,
-      // keep the dragged position in the data-x/data-y attributes
-      x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-      y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+    let target = event.target;
+    instance.moveHouse(target, event.dx, event.dy);
+  }
+  moveHouse(target, dx, dy) {
+    let x = instance.locationImageBase.x + dx,
+      y = instance.locationImageBase.y + dy;
     // translate the element
     target.style.webkitTransform =
       target.style.transform =
       'translate(' + x + 'px, ' + y + 'px)';
     // update the posiion attributes
-    target.setAttribute('data-x', x);
-    target.setAttribute('data-y', y);
-    //instance.updatePoint(target.getAttribute('id'), x, y);
+    instance.locationImageBase.updateCoords(x, y);
+    // instance.updatePoint(target.getAttribute('id'), x, y);
+    if (instance.lockDoor) {
+      let points = ['tl', 'tr', 'bl', 'br'];
+      points.forEach(point => {
+        let pointDom = document.getElementById(point);
+        instance.movePoint(pointDom, dx, dy);
+      });
+    }
   }
   dragMoveListener(event) {
-    let target = event.target,
-      // keep the dragged position in the data-x/data-y attributes
-      x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-      y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+    let target = event.target;
+    instance.movePoint(target, event.dx, event.dy);
+  }
+  movePoint(target, dx, dy) {
+    let id = target.getAttribute('id');
+    let point = instance.locationPoints[id];
+    let x = point.x + dx,
+      y = point.y + dy;
     // translate the element
     target.style.webkitTransform =
       target.style.transform =
       'translate(' + x + 'px, ' + y + 'px)';
     // update the posiion attributes
-    target.setAttribute('data-x', x);
-    target.setAttribute('data-y', y);
-    instance.updatePoint(target.getAttribute('id'), x, y);
+    point.updateCoords(x, y);
+    instance.updatePoint(id, x, y);
   }
   initPoint(id, x, y) {
     let target = document.getElementById(id);
-    // translate the element
+    let point = instance.locationPoints[id];
     target.style.webkitTransform =
       target.style.transform =
       'translate(' + x + 'px, ' + y + 'px)';
     // update the posiion attributes
-    target.setAttribute('data-x', x);
-    target.setAttribute('data-y', y);
+    point.updateCoords(x, y);
     this.updatePoint(target.getAttribute('id'), x, y);
   }
 }
