@@ -59,17 +59,11 @@ export class OverlapperComponent implements OnInit {
       return this._width;
   }
   @Input('width') set width(value: number) {
-      this._width = value;
-      this.initPerspectiveTransform();
-  }
-  // lockHouse
-  _lockHouse: boolean;
-  get lockHouse(): boolean {
-      return this._lockHouse;
-  }
-  @Input('lockHouse') set lockHouse(value: boolean) {
-      this._lockHouse = value;
-      this.toggleDragHouse();
+    let previousWidth = this._width;
+    this._width = value;
+    this.factor = this.dataImageBase.width / this.width;
+    this.height = this.width * this.dataImageBase.height / this.dataImageBase.width;
+    this.updatePointsOnZoom(this.zoom, this.zoom, previousWidth, value);
   }
   // lockDoor
   _lockDoor: boolean;
@@ -88,8 +82,11 @@ export class OverlapperComponent implements OnInit {
   @Input('zoom') set zoom(value: number) {
     let previousZoom = this._zoom;
     this._zoom = value;
+    this.updatePointsOnZoom(previousZoom, value, this.width, this.width);
+  }
+  updatePointsOnZoom(previousZoom, newZoom, previousWidth, newWidth) {
     this.updateWidthBase();
-    if (value === 100) {
+    if (newZoom === 100) {
       let target = document.getElementById('imageBase');
       this.moveHouse(target, -this.locationImageBase.x, -this.locationImageBase.y);
     }
@@ -100,10 +97,16 @@ export class OverlapperComponent implements OnInit {
         let instPoint = this.locationPoints[point];
         let pointDom = document.getElementById(point);
         let relativeX = instPoint.x - this.locationImageBase.x;
-        let newX = (relativeX * this.zoom / previousZoom) + this.locationImageBase.x;
-        let dx = newX - instPoint.x;
         let relativeY = instPoint.y - this.locationImageBase.y;
-        let newY = (relativeY * this.zoom / previousZoom) + this.locationImageBase.y;
+        let newX, newY;
+        if (previousZoom !== newZoom) {
+          newX = (relativeX * newZoom / previousZoom) + this.locationImageBase.x;
+          newY = (relativeY * newZoom / previousZoom) + this.locationImageBase.y;
+        } else {
+          newX = (relativeX * newWidth / previousWidth) + this.locationImageBase.x;
+          newY = (relativeY * newWidth / previousWidth) + this.locationImageBase.y;
+        }
+        let dx = newX - instPoint.x;
         let dy = newY - instPoint.y;
         this.movePoint(pointDom, dx, dy);
       });
@@ -112,30 +115,11 @@ export class OverlapperComponent implements OnInit {
 
   updateWidthBase() {
     this.widthBase = this.dataImageBase.width * (this.zoom / 100) / this.factor;
-    console.log('calculó',this.widthBase, 'img w', this.dataImageBase.width, 'factor', this.factor, 'zoom', this.zoom);
   }
   // imageBase: any;
   // imageOverlapped: any;
   constructor() {
     instance = this;
-  }
-  toggleDragHouse() {
-    if (this.lockHouse) {
-      interact('.imageDrag').draggable({enabled: false});
-    } else {
-      interact('.imageDrag')
-      .draggable({
-        inertia: true,
-        restrict: {
-          restriction: 'parent',
-          endOnly: false,
-          elementRect: { top: 0.5, left: 0.5, bottom: 0.5, right: 0.5 },
-        },
-        autoScroll: false,
-        onmove: instance.dragMoveImageListener,
-        onend: null
-      });
-    }
   }
   toggleDragDoor() {
     if (this.lockDoor) {
@@ -169,7 +153,20 @@ export class OverlapperComponent implements OnInit {
       this.initPoint('tl', startX, startY);
     }
   }
-  ngOnInit() {}
+  ngOnInit() {
+    interact('.imageDrag')
+    .draggable({
+      inertia: true,
+      restrict: {
+        restriction: 'parent',
+        endOnly: false,
+        elementRect: { top: 0.5, left: 0.5, bottom: 0.5, right: 0.5 },
+      },
+      autoScroll: false,
+      onmove: instance.dragMoveImageListener,
+      onend: null
+    });
+  }
   updatePoint(id, x, y) {
     if (id === 'br') {
       this.transform.bottomRight.updateCoords(x + 5, y + 5);
@@ -234,5 +231,15 @@ export class OverlapperComponent implements OnInit {
     // update the posiion attributes
     point.updateCoords(x, y);
     this.updatePoint(target.getAttribute('id'), x, y);
+  }
+  toCanvas() {
+    // html2canvas(document.getElementById('drag-container'), {
+    //   onrendered: (canvas) => document.body.appendChild(canvas)
+    // });
+    // html2canvas(document.getElementById('drag-container'), {
+    //   onrendered: function(canvas) {
+    //     document.body.appendChild(canvas);
+    //   }
+    // });
   }
 }

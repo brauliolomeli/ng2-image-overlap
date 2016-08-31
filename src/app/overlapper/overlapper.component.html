@@ -1,4 +1,4 @@
-<div class="drag-container"
+<div class="drag-container" id="drag-container"
     [ngStyle]="{'width' : width + 'px', 'height': height + 'px' }">
     <!--, 'background-image': 'url(' + imageBase + ')'-->
     <img [src]="imageBase" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" />
@@ -9,8 +9,4 @@
     <div id="bl" class="pt draggable" [ngStyle]="{'visibility': (lockDoor ? 'hidden':'visible'), 'width': pointSize + 'px', 'height': pointSize + 'px', 'left': '-' + pointSize/2+'px'}"></div>
     <div id="br" class="pt draggable" [ngStyle]="{'visibility': (lockDoor ? 'hidden':'visible'), 'width': pointSize + 'px', 'height': pointSize + 'px'}"></div>
 </div>
-
-<!--<div class="crop">
-    
-    <div class="imageDrag"></div>
-</div>-->
+<button (click)="toCanvas()">toCanvas</button>

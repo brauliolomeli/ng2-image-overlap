@@ -14,6 +14,5 @@ export class AppComponent {
   pointSize: number = 10;
   width: number = 800;
   zoom: number = 100;
-  lockHouse: boolean = true;
   lockDoor: boolean = false;
 }
