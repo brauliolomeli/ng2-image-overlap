@@ -12,6 +12,7 @@ let instance: OverlapperComponent;
 export class OverlapperComponent implements OnInit {
   widthBase: number = 0;
   locationImageBase: Point = new Point(0, 0);
+  pointSize: number = 45;
   locationPoints: any = {
     bl: new Point(0, 0),
     br: new Point(0, 0),
@@ -19,7 +20,6 @@ export class OverlapperComponent implements OnInit {
     tr: new Point(0, 0),
   };
   transform: PerspectiveTransform;
-  @Input() pointSize: number;
   dataImageBase: any;
   dataImageOverlapped: any;
   height: number;
@@ -156,12 +156,12 @@ export class OverlapperComponent implements OnInit {
   ngOnInit() {
     interact('.imageDrag')
     .draggable({
-      inertia: true,
-      restrict: {
-        restriction: 'parent',
-        endOnly: false,
-        elementRect: { top: 0.5, left: 0.5, bottom: 0.5, right: 0.5 },
-      },
+      inertia: false,
+      // restrict: {
+      //   restriction: 'parent',
+      //   endOnly: false,
+      //   elementRect: { top: 0.5, left: 0.5, bottom: 0.5, right: 0.5 },
+      // },
       autoScroll: false,
       onmove: instance.dragMoveImageListener,
       onend: null

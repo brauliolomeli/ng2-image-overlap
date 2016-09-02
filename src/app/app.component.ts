@@ -11,7 +11,6 @@ export class AppComponent {
     'images/house4.jpeg', 'images/house5.jpeg', 'images/house6.jpeg', 'images/house7.jpeg'];
   imageBase: string = 'images/house1.png';
   imageOverlapped: string = 'images/door1.png';
-  pointSize: number = 10;
   width: number = 800;
   zoom: number = 100;
   lockDoor: boolean = false;
