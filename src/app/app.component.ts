@@ -14,4 +14,14 @@ export class AppComponent {
   width: number = 800;
   zoom: number = 100;
   lockDoor: boolean = false;
+
+  zoomStep = 25;
+  zoomMin = 100;
+  zoomMax = 200;
+  updateZoom(way = 1) {
+    let zoom = this.zoom + this.zoomStep * way;
+    zoom = zoom > this.zoomMax ? this.zoomMax : zoom;
+    zoom = zoom < this.zoomMin ? this.zoomMin : zoom;
+    this.zoom = zoom;
+  }
 }

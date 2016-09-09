@@ -1,12 +1,20 @@
+Lock door<input type="checkbox" name="lock-door" [(ngModel)]="lockDoor">
 <div class="drag-container" id="drag-container"
     [ngStyle]="{'width' : width + 'px', 'height': height + 'px' }">
-    <!--, 'background-image': 'url(' + imageBase + ')'-->
     <img [src]="imageBase" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" />
-    <div class="img" id="image" 
+    <!--first door-->
+    <div class="imageUp" id="image"
         [ngStyle]="{'width' : dataImageOverlapped.width + 'px', 'height': dataImageOverlapped.height + 'px', 'background-image': 'url(' + imageOverlapped + ')' }"></div>
     <div id="tl" class="pt draggable" [ngStyle]="{'visibility': (lockDoor ? 'hidden':'visible'), 'width': pointSize + 'px', 'height': pointSize + 'px', 'top': '-' + pointSize/2+'px', 'left': '-' + pointSize/2+'px'}"><div></div></div>
     <div id="tr" class="pt draggable" [ngStyle]="{'visibility': (lockDoor ? 'hidden':'visible'), 'width': pointSize + 'px', 'height': pointSize + 'px', 'top': '-' + pointSize/2+'px', 'left': '-' + (pointSize/2-3) +'px'}"><div></div></div>
     <div id="bl" class="pt draggable" [ngStyle]="{'visibility': (lockDoor ? 'hidden':'visible'), 'width': pointSize + 'px', 'height': pointSize + 'px', 'top': '-' + (pointSize/2-3)+'px', 'left': '-' + pointSize/2+'px'}"><div></div></div>
     <div id="br" class="pt draggable" [ngStyle]="{'visibility': (lockDoor ? 'hidden':'visible'), 'width': pointSize + 'px', 'height': pointSize + 'px', 'top': '-' + (pointSize/2-3)+'px', 'left': '-' + (pointSize/2-3) +'px'}"><div></div></div>
+    <!--second door-->
+    <div class="imageUp" id="image2"
+        [ngStyle]="{'visibility':(duplicateDoor ? 'visible':'hidden'), 'width' : dataImageOverlapped.width + 'px', 'height': dataImageOverlapped.height + 'px', 'background-image': 'url(' + imageOverlapped + ')' }"></div>
+    <div id="tl2" class="pt draggable" [ngStyle]="{'visibility': (lockDoor||!duplicateDoor ? 'hidden':'visible'), 'width': pointSize + 'px', 'height': pointSize + 'px', 'top': '-' + pointSize/2+'px', 'left': '-' + pointSize/2+'px'}"><div></div></div>
+    <div id="tr2" class="pt draggable" [ngStyle]="{'visibility': (lockDoor||!duplicateDoor ? 'hidden':'visible'), 'width': pointSize + 'px', 'height': pointSize + 'px', 'top': '-' + pointSize/2+'px', 'left': '-' + (pointSize/2-3) +'px'}"><div></div></div>
+    <div id="bl2" class="pt draggable" [ngStyle]="{'visibility': (lockDoor||!duplicateDoor ? 'hidden':'visible'), 'width': pointSize + 'px', 'height': pointSize + 'px', 'top': '-' + (pointSize/2-3)+'px', 'left': '-' + pointSize/2+'px'}"><div></div></div>
+    <div id="br2" class="pt draggable" [ngStyle]="{'visibility': (lockDoor||!duplicateDoor ? 'hidden':'visible'), 'width': pointSize + 'px', 'height': pointSize + 'px', 'top': '-' + (pointSize/2-3)+'px', 'left': '-' + (pointSize/2-3) +'px'}"><div></div></div>
 </div>
 <button (click)="toCanvas()">toCanvas</button>

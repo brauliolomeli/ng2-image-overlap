@@ -11,6 +11,7 @@ let instance: OverlapperComponent;
 })
 export class OverlapperComponent implements OnInit {
   widthBase: number = 0;
+  heightBase: number = 0;
   locationImageBase: Point = new Point(0, 0);
   pointSize: number = 45;
   locationPoints: any = {
@@ -18,8 +19,13 @@ export class OverlapperComponent implements OnInit {
     br: new Point(0, 0),
     tl: new Point(0, 0),
     tr: new Point(0, 0),
+    bl2: new Point(0, 0),
+    br2: new Point(0, 0),
+    tl2: new Point(0, 0),
+    tr2: new Point(0, 0),
   };
-  transform: PerspectiveTransform;
+  transform1: PerspectiveTransform;
+  transform2: PerspectiveTransform;
   dataImageBase: any;
   dataImageOverlapped: any;
   height: number;
@@ -65,14 +71,17 @@ export class OverlapperComponent implements OnInit {
     this.height = this.width * this.dataImageBase.height / this.dataImageBase.width;
     this.updatePointsOnZoom(this.zoom, this.zoom, previousWidth, value);
   }
+  // Duplicate door
+  @Input('duplicateDoor') duplicateDoor: boolean;
   // lockDoor
   _lockDoor: boolean;
   get lockDoor(): boolean {
-      return this._lockDoor;
+    return this._lockDoor;
   }
-  @Input('lockDoor') set lockDoor(value: boolean) {
-      this._lockDoor = value;
-      this.toggleDragDoor();
+  set lockDoor(value: boolean) {
+    console.log('set lockDoor to', value);
+    this._lockDoor = value;
+    this.toggleDragDoor();
   }
   // zoom
   _zoom: number;
@@ -85,14 +94,27 @@ export class OverlapperComponent implements OnInit {
     this.updatePointsOnZoom(previousZoom, value, this.width, this.width);
   }
   updatePointsOnZoom(previousZoom, newZoom, previousWidth, newWidth) {
+    let widthBaseBefore = this.widthBase,
+      heightBaseBefore = this.heightBase,
+      adjustCenterZoomX = 0,
+      adjustCenterZoomY = 0;
     this.updateWidthBase();
+    let target = document.getElementById('imageBase');
     if (newZoom === 100) {
-      let target = document.getElementById('imageBase');
       this.moveHouse(target, -this.locationImageBase.x, -this.locationImageBase.y);
+    } else {
+      adjustCenterZoomX = -(this.widthBase - widthBaseBefore) / 2;
+      adjustCenterZoomY = -(this.heightBase - heightBaseBefore) / 2;
+      adjustCenterZoomX = adjustCenterZoomX || 0;
+      adjustCenterZoomY = adjustCenterZoomY || 0;
+      if (adjustCenterZoomX !== 0 || adjustCenterZoomY !== 0) {
+        let adjustCenterZoom = this.moveHouse(target, adjustCenterZoomX, adjustCenterZoomY);
+        adjustCenterZoomX = adjustCenterZoom[0];
+        adjustCenterZoomY = adjustCenterZoom[1];
+      }
     }
-    // this.initPerspectiveTransform();
     if (instance.lockDoor) {
-      let points = ['tl', 'tr', 'bl', 'br'];
+      let points = ['tl', 'tr', 'bl', 'br', 'tl2', 'tr2', 'bl2', 'br2'];
       points.forEach(point => {
         let instPoint = this.locationPoints[point];
         let pointDom = document.getElementById(point);
@@ -115,15 +137,15 @@ export class OverlapperComponent implements OnInit {
 
   updateWidthBase() {
     this.widthBase = this.dataImageBase.width * (this.zoom / 100) / this.factor;
+    this.heightBase = this.widthBase * this.height / this.width;
   }
-  // imageBase: any;
-  // imageOverlapped: any;
   constructor() {
     instance = this;
   }
   toggleDragDoor() {
     if (this.lockDoor) {
       interact('.draggable').draggable({enabled: false});
+      interact('.imageUp').draggable({enabled: false});
     } else {
       interact('.draggable')
       .draggable({
@@ -134,7 +156,19 @@ export class OverlapperComponent implements OnInit {
           elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
         },
         autoScroll: false,
-        onmove: instance.dragMoveListener,
+        onmove: instance.dragPointListener,
+        onend: null
+      });
+      interact('.imageUp')
+      .draggable({
+        inertia: true,
+        restrict: {
+          restriction: 'parent',
+          endOnly: true,
+          elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+        },
+        autoScroll: false,
+        onmove: instance.dragDoorListener,
         onend: null
       });
     }
@@ -142,7 +176,9 @@ export class OverlapperComponent implements OnInit {
   initPerspectiveTransform() {
     if (this.width && this.height && this.imageOverlapped) {
       let img = document.getElementById('image');
-      this.transform = new PerspectiveTransform(img, this.dataImageOverlapped.width, this.dataImageOverlapped.height, true);
+      let img2 = document.getElementById('image2');
+      this.transform1 = new PerspectiveTransform(img, this.dataImageOverlapped.width, this.dataImageOverlapped.height, true);
+      this.transform2 = new PerspectiveTransform(img2, this.dataImageOverlapped.width, this.dataImageOverlapped.height, true);
       let startX = Number(this.width / 3);
       let endX = startX * 2;
       let startY = Number(this.height / 3);
@@ -151,34 +187,51 @@ export class OverlapperComponent implements OnInit {
       this.initPoint('bl', startX, endY);
       this.initPoint('tr', endX, startY);
       this.initPoint('tl', startX, startY);
+      this.initPoint('br2', startX - 40, endY);
+      this.initPoint('bl2', 20, endY);
+      this.initPoint('tr2', startX - 40, startY);
+      this.initPoint('tl2', 20, startY);
     }
   }
   ngOnInit() {
+    this.lockDoor = false;
     interact('.imageDrag')
     .draggable({
       inertia: false,
-      // restrict: {
-      //   restriction: 'parent',
-      //   endOnly: false,
-      //   elementRect: { top: 0.5, left: 0.5, bottom: 0.5, right: 0.5 },
-      // },
       autoScroll: false,
       onmove: instance.dragMoveImageListener,
       onend: null
     });
   }
   updatePoint(id, x, y) {
+    let transform;
     if (id === 'br') {
-      this.transform.bottomRight.updateCoords(x + 5, y + 5);
+      this.transform1.bottomRight.updateCoords(x + 5, y + 5);
+      transform = this.transform1;
     } else if (id === 'bl') {
-      this.transform.bottomLeft.updateCoords(x, y + 5);
+      this.transform1.bottomLeft.updateCoords(x, y + 5);
+      transform = this.transform1;
     } else if (id === 'tl') {
-      this.transform.topLeft.updateCoords(x, y);
+      this.transform1.topLeft.updateCoords(x, y);
+      transform = this.transform1;
     } else if (id === 'tr') {
-      this.transform.topRight.updateCoords(x + 5, y);
+      this.transform1.topRight.updateCoords(x + 5, y);
+      transform = this.transform1;
+    } else if (id === 'br2') {
+      this.transform2.bottomRight.updateCoords(x + 5, y + 5);
+      transform = this.transform2;
+    } else if (id === 'bl2') {
+      this.transform2.bottomLeft.updateCoords(x, y + 5);
+      transform = this.transform2;
+    } else if (id === 'tl2') {
+      this.transform2.topLeft.updateCoords(x, y);
+      transform = this.transform2;
+    } else if (id === 'tr2') {
+      this.transform2.topRight.updateCoords(x + 5, y);
+      transform = this.transform2;
     }
-    if (this.transform.checkError() === 0) {
-      this.transform.update();
+    if (transform.checkError() === 0) {
+      transform.update();
     } else {
       console.log('Error, should hide image or something');
     }
@@ -189,7 +242,25 @@ export class OverlapperComponent implements OnInit {
   }
   moveHouse(target, dx, dy) {
     let x = instance.locationImageBase.x + dx,
-      y = instance.locationImageBase.y + dy;
+      y = instance.locationImageBase.y + dy,
+      endX = this.widthBase + x - this.width,
+      endY = this.heightBase + y - this.height;
+    if (x > 0) {
+      dx -= x;
+      x = 0;
+    }
+    if (y > 0) {
+      dy -= y;
+      y = 0;
+    }
+    if (endX < 0) {
+      x -= endX;
+      dx -= endX;
+    }
+    if (endY < 0) {
+      y -= endY;
+      dy -= endY;
+    }
     // translate the element
     target.style.webkitTransform =
       target.style.transform =
@@ -198,16 +269,27 @@ export class OverlapperComponent implements OnInit {
     instance.locationImageBase.updateCoords(x, y);
     // instance.updatePoint(target.getAttribute('id'), x, y);
     if (instance.lockDoor) {
-      let points = ['tl', 'tr', 'bl', 'br'];
+      let points = ['tl', 'tr', 'bl', 'br', 'tl2', 'tr2', 'bl2', 'br2'];
       points.forEach(point => {
         let pointDom = document.getElementById(point);
         instance.movePoint(pointDom, dx, dy);
       });
     }
+    return [dx, dy];
   }
-  dragMoveListener(event) {
+  dragPointListener(event) {
     let target = event.target;
     instance.movePoint(target, event.dx, event.dy);
+  }
+  dragDoorListener(event) {
+    console.log(event.target.id);
+    if (!instance.lockDoor) {
+      let points = event.target.id === 'image' ? ['tl', 'tr', 'bl', 'br'] : ['tl2', 'tr2', 'bl2', 'br2'];
+      points.forEach(point => {
+        let pointDom = document.getElementById(point);
+        instance.movePoint(pointDom, event.dx, event.dy);
+      });
+    }
   }
   movePoint(target, dx, dy) {
     let id = target.getAttribute('id');
@@ -232,7 +314,11 @@ export class OverlapperComponent implements OnInit {
     point.updateCoords(x, y);
     this.updatePoint(target.getAttribute('id'), x, y);
   }
+  doorClicked(event) {
+    console.log(event);
+  }
   toCanvas() {
+    console.log('Will be converted to canvas');
     // html2canvas(document.getElementById('drag-container'), {
     //   onrendered: (canvas) => document.body.appendChild(canvas)
     // });

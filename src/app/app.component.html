@@ -10,15 +10,15 @@ Select Door
 <br>
 <img *ngFor="let door of doors" [src]="door" width="80" (click)="imageOverlapped=door">
 <br>
+<button (click)="updateZoom(-1)">-</button>
 House zoom ({{zoom / 100}})
+<button (click)="updateZoom()">+</button>
 <br>
-<input type="range" name="zoom" min="20" max="500" [(ngModel)]="zoom"> <button (click)="zoom=100">Reset Zoom</button>
-<br>
-Lock door<input type="checkbox" name="lock-door" [(ngModel)]="lockDoor">
+Duplicate door<input type="checkbox" name="duplicate-door" [(ngModel)]="duplicateDoor">
 <br>
 <app-overlapper
     [imageBase]="imageBase"
     [imageOverlapped]="imageOverlapped"
     [width]="width"
-    [lockDoor]="lockDoor"
+    [duplicateDoor]="duplicateDoor"
     [zoom]="zoom"></app-overlapper>
