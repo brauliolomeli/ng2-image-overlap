@@ -1,7 +1,19 @@
 
-Width
-<br>
+<app-overlapper
+    [imageBase]="imageBase"
+    [imageOverlapped]="imageOverlapped"
+    [width]="width"
+    [duplicateDoor]="duplicateDoor"
+    [zoom]="zoom"></app-overlapper>
+Duplicate door<input type="checkbox" name="duplicate-door" [(ngModel)]="duplicateDoor">
+<button (click)="updateWidth(-1)">-</button>
+Width {{width}}
+<button (click)="updateWidth()">+</button>
 <input type="range" name="width" min="30" max="1800" [(ngModel)]="width">
+<br>
+<button (click)="updateZoom(-1)">-</button>
+House zoom ({{zoom / 100}})
+<button (click)="updateZoom()">+</button>
 <br>
 Select House 
 <br>
@@ -9,16 +21,3 @@ Select House
 Select Door
 <br>
 <img *ngFor="let door of doors" [src]="door" width="80" (click)="imageOverlapped=door">
-<br>
-<button (click)="updateZoom(-1)">-</button>
-House zoom ({{zoom / 100}})
-<button (click)="updateZoom()">+</button>
-<br>
-Duplicate door<input type="checkbox" name="duplicate-door" [(ngModel)]="duplicateDoor">
-<br>
-<app-overlapper
-    [imageBase]="imageBase"
-    [imageOverlapped]="imageOverlapped"
-    [width]="width"
-    [duplicateDoor]="duplicateDoor"
-    [zoom]="zoom"></app-overlapper>

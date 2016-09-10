@@ -24,4 +24,10 @@ export class AppComponent {
     zoom = zoom < this.zoomMin ? this.zoomMin : zoom;
     this.zoom = zoom;
   }
+  updateWidth(way = 1) {
+    let width = this.width + 100 * way;
+    width = width > 1800 ? 1800 : width;
+    width = width < 100 ? 100 : width;
+    this.width = width;
+  }
 }
