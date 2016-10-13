@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, HostListener, NgZone, ElementRef, ViewChild } from '@angular/core';
 import { PerspectiveTransform } from '../lib/PerspectiveTransform';
 import { Point } from '../lib/Point';
 import * as interact from 'interact.js';
@@ -32,6 +32,7 @@ export class OverlapperComponent implements OnInit {
   factor: number;
   // Background image
   _imageBase: string;
+  perpectiveInitialized: boolean = false;
   get imageBase(): string {
       return this._imageBase;
   }
@@ -64,7 +65,7 @@ export class OverlapperComponent implements OnInit {
   get width(): number {
       return this._width;
   }
-  @Input('width') set width(value: number) {
+  set width(value: number) {
     let previousWidth = this._width;
     this._width = value;
     this.factor = this.dataImageBase.width / this.width;
@@ -79,9 +80,8 @@ export class OverlapperComponent implements OnInit {
     return this._lockDoor;
   }
   set lockDoor(value: boolean) {
-    console.log('set lockDoor to', value);
     this._lockDoor = value;
-    this.toggleDragDoor();
+    this.toggleDragDoor(value);
   }
   // zoom
   _zoom: number;
@@ -139,11 +139,16 @@ export class OverlapperComponent implements OnInit {
     this.widthBase = this.dataImageBase.width * (this.zoom / 100) / this.factor;
     this.heightBase = this.widthBase * this.height / this.width;
   }
-  constructor() {
+  constructor(
+    private elementRef: ElementRef,
+    zone: NgZone
+  ) {
     instance = this;
+    (<any>window).app = this;
+    (<any>window).zoneImpl = zone;
   }
-  toggleDragDoor() {
-    if (this.lockDoor) {
+  toggleDragDoor(lock: boolean) {
+    if (lock) {
       interact('.draggable').draggable({enabled: false});
       interact('.imageUp').draggable({enabled: false});
     } else {
@@ -174,7 +179,7 @@ export class OverlapperComponent implements OnInit {
     }
   }
   initPerspectiveTransform() {
-    if (this.width && this.height && this.imageOverlapped) {
+    if (this.width && this.height && this.imageOverlapped) { //} && !this.perpectiveInitialized) {
       let img = document.getElementById('image');
       let img2 = document.getElementById('image2');
       this.transform1 = new PerspectiveTransform(img, this.dataImageOverlapped.width, this.dataImageOverlapped.height, true);
@@ -194,13 +199,17 @@ export class OverlapperComponent implements OnInit {
     }
   }
   ngOnInit() {
-    this.lockDoor = false;
+    this.onResize();
+    this.lockDoor = true;
     interact('.imageDrag')
     .draggable({
       inertia: false,
       autoScroll: false,
       onmove: instance.dragMoveImageListener,
       onend: null
+    });
+    interact('.imageUp').on('tap', (event) => {
+      (<any>window).zoneImpl.run(() => (<any>window).app.lockDoor = !(<any>window).app.lockDoor);
     });
   }
   updatePoint(id, x, y) {
@@ -282,7 +291,6 @@ export class OverlapperComponent implements OnInit {
     instance.movePoint(target, event.dx, event.dy);
   }
   dragDoorListener(event) {
-    console.log(event.target.id);
     if (!instance.lockDoor) {
       let points = event.target.id === 'image' ? ['tl', 'tr', 'bl', 'br'] : ['tl2', 'tr2', 'bl2', 'br2'];
       points.forEach(point => {
@@ -314,9 +322,6 @@ export class OverlapperComponent implements OnInit {
     point.updateCoords(x, y);
     this.updatePoint(target.getAttribute('id'), x, y);
   }
-  doorClicked(event) {
-    console.log(event);
-  }
   toCanvas() {
     console.log('Will be converted to canvas');
     // html2canvas(document.getElementById('drag-container'), {
@@ -327,5 +332,14 @@ export class OverlapperComponent implements OnInit {
     //     document.body.appendChild(canvas);
     //   }
     // });
+  }
+  @ViewChild('dragContainer') dragContainer;
+  @HostListener('window:resize', ['$event.target'])
+  onResize() {
+    let rect = this.dragContainer.nativeElement.getBoundingClientRect();
+    this.width = rect.width;
+  }
+  clickImage() {
+    console.log('click image');
   }
 }

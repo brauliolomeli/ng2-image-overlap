@@ -23,25 +23,17 @@
     background-size: 100%;
     position: relative;
     overflow: hidden;
+    width: 100%;
 }
 .imageUp {
     position: absolute;
 }
 
-/*.crop {
-    width: 200px;
-    height: 200px;
-    overflow: hidden;
-    border: solid 1px red;
-}*/
-
 .imageDrag {
-    /*width: 400px;
-    height: 400px;*/
     border: solid 1px lightgray;
     cursor:move;
     position: absolute;
     -webkit-transform: translate(0px, 0px);
-          transform: translate(0px, 0px);
+    transform: translate(0px, 0px);
 
 }

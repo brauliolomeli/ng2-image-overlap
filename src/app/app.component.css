@@ -1,3 +1,6 @@
 input[type=range] {
     width: 300px;
 }
+app-overlapper {
+    width: 900px;
+}
