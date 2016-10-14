@@ -5,9 +5,12 @@ import * as models from './models/';
 
 @Injectable()
 export class OverlapperService {
-
-    private images: models.Image[];
+    private mainImage: string;
+    private _mainImage: BehaviorSubject<string> = new BehaviorSubject('');
+    private images: models.Image[] = [];
     private _images: BehaviorSubject<models.Image[]> = new BehaviorSubject([]);
+
+
     public get obsImages() {
         return new Observable((fn: any) => this._images.subscribe(fn));
     }
@@ -27,8 +30,7 @@ export class OverlapperService {
         this._images.next(this.images);
     }
 
-    private mainImage: string;
-    private _mainImage: BehaviorSubject<string> = new BehaviorSubject('');
+
     public get obsMainImage() {
         return new Observable((fn: any) => this._mainImage.subscribe(fn));
     }

@@ -5,12 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { AppComponent } from './app.component';
 import { OverlapperComponent } from './overlapper/overlapper.component';
+import { OverlapperTComponent } from './overlapper-t/overlapper-t.component';
 import { OverlapperService } from './lib/overlapper.service';
 
 @NgModule({
   declarations: [
     AppComponent,
-    OverlapperComponent
+    OverlapperComponent,
+    OverlapperTComponent
   ],
   imports: [
     BrowserModule,

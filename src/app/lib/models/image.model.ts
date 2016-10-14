@@ -1,15 +1,14 @@
 import * as model from './';
 export class Image {
     public url: string;
-    bl: model.Point;
-    br: model.Point;
-    tl: model.Point;
-    tr: model.Point;
+    public polygon: model.Polygon;
 
     constructor(
-        private obj: any
+        url: string,
+        polygon: model.Polygon
     ) {
-        Object.assign(this, this.setDefaults(obj));
+        this.url = url;
+        this.polygon = polygon;
     }
 
     setDefaults(obj: any) {
