@@ -4,8 +4,7 @@
  *  http://www.is-real.net/experiments/css3/wonder-webkit/js/real/display/PerspectiveTransform.js
  */
 
-import { Point } from './Point';
-
+import * as models from './models/';
 export class PerspectiveTransform {
     // From constructor
     element: any;
@@ -16,10 +15,10 @@ export class PerspectiveTransform {
     useBackFacing: boolean;
     useDPRFix: boolean = false;
     dpr: number = 1;
-    topLeft: Point;
-    topRight: Point;
-    bottomLeft: Point;
-    bottomRight: Point;
+    topLeft: models.Point;
+    topRight: models.Point;
+    bottomLeft: models.Point;
+    bottomRight: models.Point;
 
     _transformStyleName: any;
     _transformOriginDomStyleName: any;
@@ -35,10 +34,10 @@ export class PerspectiveTransform {
         this.height = height;
         this.useBackFacing = !!useBackFacing;
 
-        this.topLeft = new Point(0, 0);
-        this.topRight = new Point(width, 0);
-        this.bottomLeft = new Point(0, height);
-        this.bottomRight = new Point(width, height);
+        this.topLeft = new models.Point(0, 0);
+        this.topRight = new models.Point(width, 0);
+        this.bottomLeft = new models.Point(0, height);
+        this.bottomRight = new models.Point(width, height);
         this._setTransformStyleName();
     }
     private _setTransformStyleName() {

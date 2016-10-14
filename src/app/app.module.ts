@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { AppComponent } from './app.component';
 import { OverlapperComponent } from './overlapper/overlapper.component';
+import { OverlapperService } from './lib/overlapper.service';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,9 @@ import { OverlapperComponent } from './overlapper/overlapper.component';
     FormsModule,
     HttpModule
   ],
-  providers: [],
+  providers: [
+    OverlapperService
+  ],
   entryComponents: [AppComponent],
   bootstrap: [AppComponent]
 })

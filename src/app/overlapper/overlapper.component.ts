@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, HostListener, NgZone, ElementRef, ViewChild } from '@angular/core';
 import { PerspectiveTransform } from '../lib/PerspectiveTransform';
-import { Point } from '../lib/Point';
+import { Point } from '../lib/models/';
 import * as interact from 'interact.js';
 let instance: OverlapperComponent;
 
