@@ -33,10 +33,10 @@ export class AppComponent {
     let image = new models.Image(
       door,
       new models.Polygon([
-        new models.Point(100, 200),
-        new models.Point(500, 200),
-        new models.Point(200, 500),
-        new models.Point(500, 500)
+        new models.Point(633, 422),
+        new models.Point(1266, 422),
+        new models.Point(633, 844),
+        new models.Point(1266, 844)
       ]));
     this.overlapperService.addImage(image);
   }
