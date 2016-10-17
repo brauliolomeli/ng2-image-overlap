@@ -5,10 +5,11 @@
     <!--first door-->
     <template ngFor let-image [ngForOf]="images" let-i="index">
         <div class="imageUp" [id]="image.id" 
-        [ngStyle]="{'width' : width + 'px', 'height': height + 'px', 'background-image': 'url(' + image.parent.url + ')' }"></div>
+        [ngStyle]="{'width' : image.width + 'px', 'height': image.height + 'px', 'background-image': 'url(' + image.parent.url + ')' }"></div>
         <div
             *ngFor="let point of image.polygon.points" 
-            [id]="point.id" class="pt draggable {{point.type}}">
+            [id]="point.id" class="pt draggable {{point.type}} draggable_{{image.id}}"
+            [attr.corner]="point.type">
             <div></div></div>
     </template>
     <!--

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, HostListener, NgZone, ElementRef, ViewChild } from '@angular/core';
-import { PerspectiveTransform } from '../lib/PerspectiveTransform';
+// import { PerspectiveTransform } from '../lib/PerspectiveTransform';
 import { OverlapperService } from '../lib/overlapper.service';
 
 import * as interact from 'interact.js';
@@ -26,8 +26,8 @@ export class OverlapperComponent implements OnInit {
   //   tl2: new Point(0, 0),
   //   tr2: new Point(0, 0),
   // };
-  transform1: PerspectiveTransform;
-  transform2: PerspectiveTransform;
+  // transform1: PerspectiveTransform;
+  // transform2: PerspectiveTransform;
   dataImageBase: any;
   dataImageOverlapped: any;
   height: number;
