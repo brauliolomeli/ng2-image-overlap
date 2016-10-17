@@ -22,14 +22,16 @@ export class OverlapperService {
         this.images.pop();
         this.imageChanged();
     }
-    public updatePoint(index: number, point: string, x: number, y: number) {
-        this.images[index][point].updateCoords(x, y);
+    public updatePoint(index: number, point: number, x: number, y: number) {
+        this.images[index].polygon.points[point].updateCoords(x, y);
         this.imageChanged();
     }
     public imageChanged() {
         this._images.next(this.images);
     }
-
+    public getImages(): models.Image[] {
+        return this.images;
+    }
 
     public get obsMainImage() {
         return new Observable((fn: any) => this._mainImage.subscribe(fn));

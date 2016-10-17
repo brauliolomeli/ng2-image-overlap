@@ -1,8 +1,7 @@
 
 <app-overlapper [zoom]="zoom"></app-overlapper>
-<!--<app-overlapper-t></app-overlapper-t>-->
 
-
+<button (click)="deleteLast()">Delete last</button><br>
 Duplicate door<input type="checkbox" name="duplicate-door" [(ngModel)]="duplicateDoor">
 <br>
 <button (click)="updateZoom(-1)">-</button>

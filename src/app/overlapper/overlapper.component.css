@@ -11,30 +11,18 @@
     width: 45px;
     -webkit-transform: translate(0px, 0px);
     transform: translate(0px, 0px);
+    margin-top: -23.5px;
+    margin-left: -23.5px;
 }
-.pt.tl {
-    top: 23px;
-    left: 23px;
-}
-.pt.tr {
-    top: 23px;
-    left: 20px;
-}
-.pt.bl {
-    top: 20px;
-    left: 23px;
-}
-.pt.br {
-    top: 20px;
-    left: 20px;
-}
-.pt > div {
+.pt:before {
     background-color: #E51937;
     height: 7px;
     width: 7px;
     top: 19px;
     left: 19px;
     position: relative;
+    content: " ";
+    display: block;
 }
 .drag-container {
     border: 1px solid black;

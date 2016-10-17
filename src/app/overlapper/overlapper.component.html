@@ -9,8 +9,9 @@
         <div
             *ngFor="let point of image.polygon.points" 
             [id]="point.id" class="pt draggable {{point.type}} draggable_{{image.id}}"
-            [attr.corner]="point.type">
-            <div></div></div>
+            [attr.corner]="point.type"
+            [ngStyle]="{'visibility': image.doorLocked ? 'hidden':'visible'}">
+            </div>
     </template>
     <!--
         <div class="imageUp" id="image"

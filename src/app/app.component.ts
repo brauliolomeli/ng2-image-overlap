@@ -29,6 +29,9 @@ export class AppComponent {
   selectMainImage(image: string) {
     this.overlapperService.setMainImage(image);
   }
+  deleteLast() {
+    this.overlapperService.deleteLastImage();
+  }
   addImage(door) {
     let image = new models.Image(
       door,

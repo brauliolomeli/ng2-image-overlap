@@ -1,10 +1,8 @@
 import { Component, OnInit, Input, HostListener, NgZone, ElementRef, ViewChild } from '@angular/core';
-// import { PerspectiveTransform } from '../lib/PerspectiveTransform';
 import { OverlapperService } from '../lib/overlapper.service';
 
 import * as interact from 'interact.js';
 import * as models from '../lib/models';
-let instance: OverlapperComponent;
 
 @Component({
   selector: 'app-overlapper',
@@ -15,21 +13,7 @@ export class OverlapperComponent implements OnInit {
   widthBase: number = 0;
   heightBase: number = 0;
   locationImageBase: models.Point = new models.Point(0, 0);
-  pointSize: number = 45;
-  // locationPoints: any = {
-  //   bl: new Point(0, 0),
-  //   br: new Point(0, 0),
-  //   tl: new Point(0, 0),
-  //   tr: new Point(0, 0),
-  //   bl2: new Point(0, 0),
-  //   br2: new Point(0, 0),
-  //   tl2: new Point(0, 0),
-  //   tr2: new Point(0, 0),
-  // };
-  // transform1: PerspectiveTransform;
-  // transform2: PerspectiveTransform;
   dataImageBase: any;
-  dataImageOverlapped: any;
   height: number;
   factor: number;
   images: models.DisplayingImage[] = [];
@@ -48,19 +32,6 @@ export class OverlapperComponent implements OnInit {
       };
       this.dataImageBase.src = value;
   }
-  // Overlapped image
-  // _imageOverlapped: string;
-  // get imageOverlapped(): string {
-  //     return this._imageOverlapped;
-  // }
-  // @Input('imageOverlapped') set imageOverlapped(value: string) {
-      // this._imageOverlapped = value;
-      // this.dataImageOverlapped = new Image();
-      // this.dataImageOverlapped.onload = () => {
-      //   this.initPerspectiveTransform();
-      // };
-      // this.dataImageOverlapped.src = value;
-  // }
   // Width
   private width: number;
   setWidth(value: number) {
@@ -75,17 +46,6 @@ export class OverlapperComponent implements OnInit {
       this.factor = 1;
     }
   }
-  // Duplicate door
-  // @Input('duplicateDoor') duplicateDoor: boolean;
-  // lockDoor
-  // _lockDoor: boolean;
-  // get lockDoor(): boolean {
-  //   return this._lockDoor;
-  // }
-  // set lockDoor(value: boolean) {
-  //   this._lockDoor = value;
-  //   this.toggleDragDoor(value);
-  // }
   // zoom
   _zoom: number;
   get zoom(): number {
@@ -118,29 +78,10 @@ export class OverlapperComponent implements OnInit {
         adjustCenterZoomY = adjustCenterZoom[1];
       }
     }
-    // if (instance.lockDoor) {
-    //   let points = ['tl', 'tr', 'bl', 'br', 'tl2', 'tr2', 'bl2', 'br2'];
-    //   points.forEach(point => {
-    //     let instPoint = this.locationPoints[point];
-    //     let pointDom = document.getElementById(point);
-    //     let relativeX = instPoint.x - this.locationImageBase.x;
-    //     let relativeY = instPoint.y - this.locationImageBase.y;
-    //     let newX, newY;
-    //     if (previousZoom !== newZoom) {
-    //       newX = (relativeX * newZoom / previousZoom) + this.locationImageBase.x;
-    //       newY = (relativeY * newZoom / previousZoom) + this.locationImageBase.y;
-    //     } else {
-    //       newX = (relativeX * newWidth / previousWidth) + this.locationImageBase.x;
-    //       newY = (relativeY * newWidth / previousWidth) + this.locationImageBase.y;
-    //     }
-    //     let dx = newX - instPoint.x;
-    //     let dy = newY - instPoint.y;
-    //     console.log(this.transform1);
-    //     this.movePoint(pointDom, dx, dy);
-    //   });
-    // }
+    this.images.forEach((image) => {
+      image.updatePointsOnZoom(this.locationImageBase, previousZoom, newZoom, previousWidth, newWidth);
+    });
   }
-
   updateWidthBase() {
     this.widthBase = this.dataImageBase.width * ((this.zoom || 100) / 100) / this.factor;
     this.heightBase = this.widthBase * this.height / this.width;
@@ -150,90 +91,41 @@ export class OverlapperComponent implements OnInit {
     private elementRef: ElementRef,
     zone: NgZone
   ) {
-    instance = this;
-    (<any>window).app = this;
     (<any>window).zoneImpl = zone;
   }
-  // toggleDragDoor(lock: boolean) {
-  //   if (lock) {
-  //     interact('.draggable').draggable({enabled: false});
-  //     interact('.imageUp').draggable({enabled: false});
-  //   } else {
-  //     interact('.draggable')
-  //     .draggable({
-  //       inertia: true,
-  //       restrict: {
-  //         restriction: 'parent',
-  //         endOnly: true,
-  //         elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-  //       },
-  //       autoScroll: false,
-  //       onmove: instance.dragPointListener,
-  //       onend: null
-  //     });
-  //     interact('.imageUp')
-  //     .draggable({
-  //       inertia: true,
-  //       restrict: {
-  //         restriction: 'parent',
-  //         endOnly: true,
-  //         elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-  //       },
-  //       autoScroll: false,
-  //       onmove: instance.dragDoorListener,
-  //       onend: null
-  //     });
-  //   }
-  // }
-  // initPerspectiveTransform() {
-  //   console.log('will init perspective', this.width, this.height, this.imageOverlapped);
-  //   if (this.imageOverlapped) { //} && !this.perpectiveInitialized) {
-  //     let img = document.getElementById('image');
-  //     let img2 = document.getElementById('image2');
-  //     this.transform1 = new PerspectiveTransform(img, this.dataImageOverlapped.width, this.dataImageOverlapped.height, true);
-  //     console.log(this.transform1);
-  //     this.transform2 = new PerspectiveTransform(img2, this.dataImageOverlapped.width, this.dataImageOverlapped.height, true);
-  //     let startX = Number((this.width || 300) / 3);
-  //     let endX = startX * 2;
-  //     let startY = Number((this.height || 200) / 3);
-  //     let endY = startY * 2;
-  //     this.initPoint('br', endX, endY);
-  //     this.initPoint('bl', startX, endY);
-  //     this.initPoint('tr', endX, startY);
-  //     this.initPoint('tl', startX, startY);
-  //     this.initPoint('br2', startX - 40, endY);
-  //     this.initPoint('bl2', 20, endY);
-  //     this.initPoint('tr2', startX - 40, startY);
-  //     this.initPoint('tl2', 20, startY);
-  //   }
-  // }
   initImageBase() {
     if (!this.imageBaseInitialised) {
       this.imageBaseInitialised = true;
-      // this.lockDoor = true;
       interact('.imageDrag')
       .draggable({
         inertia: false,
         autoScroll: false,
-        onmove: instance.dragMoveImageListener,
+        onmove: (event) => {
+          this.dragMoveImageListener(event);
+        },
         onend: null
       });
-      this.overlapperService.obsImages.subscribe(this.onImagesChange);
-    // interact('.imageUp').on('tap', (event) => {
-    //   (<any>window).zoneImpl.run(() => (<any>window).app.lockDoor = !(<any>window).app.lockDoor);
-    // });
+      this.overlapperService.obsImages.subscribe((images: models.Image[]) => this.onImagesChange(images));
     }
   }
   onImagesChange(images: models.Image[]) {
-    if (images.length < instance.images.length) {
-      instance.images = instance.images.slice(0, images.length);
-    } else if (images.length > instance.images.length) {
-      images.slice(instance.images.length).forEach(image => {
-        let displayingImage = new models.DisplayingImage(image, instance.locationImageBase, instance.factor, instance.images.length);
-        instance.images.push(displayingImage);
+    if (images.length < this.images.length) {
+      this.images = this.images.slice(0, images.length);
+    } else if (images.length > this.images.length) {
+      images.slice(this.images.length).forEach(image => {
+        let displayingImage = new models.DisplayingImage(
+          image,
+          this.locationImageBase,
+          this.factor,
+          this.images.length,
+          this.zoom,
+          this.overlapperService
+        );
+        this.images.push(displayingImage);
         displayingImage.initPerspectiveTransform();
-        console.log(instance.images);
       });
+    } else {
+      console.log('changed', this.overlapperService.getImages());
     }
   }
   ngOnInit() {
@@ -241,50 +133,14 @@ export class OverlapperComponent implements OnInit {
     this.overlapperService.obsMainImage.subscribe((image: string) => {
       this.setImageBase(image);
     });
-    // interact('.imageUp').on('tap', (event) => {
-    //   (<any>window).zoneImpl.run(() => (<any>window).app.lockDoor = !(<any>window).app.lockDoor);
-    // });
   }
-  // updatePoint(id, x, y) {
-  //   let transform;
-  //   if (id === 'br') {
-  //     this.transform1.bottomRight.updateCoords(x + 5, y + 5);
-  //     transform = this.transform1;
-  //   } else if (id === 'bl') {
-  //     this.transform1.bottomLeft.updateCoords(x, y + 5);
-  //     transform = this.transform1;
-  //   } else if (id === 'tl') {
-  //     this.transform1.topLeft.updateCoords(x, y);
-  //     transform = this.transform1;
-  //   } else if (id === 'tr') {
-  //     this.transform1.topRight.updateCoords(x + 5, y);
-  //     transform = this.transform1;
-  //   } else if (id === 'br2') {
-  //     this.transform2.bottomRight.updateCoords(x + 5, y + 5);
-  //     transform = this.transform2;
-  //   } else if (id === 'bl2') {
-  //     this.transform2.bottomLeft.updateCoords(x, y + 5);
-  //     transform = this.transform2;
-  //   } else if (id === 'tl2') {
-  //     this.transform2.topLeft.updateCoords(x, y);
-  //     transform = this.transform2;
-  //   } else if (id === 'tr2') {
-  //     this.transform2.topRight.updateCoords(x + 5, y);
-  //     transform = this.transform2;
-  //   }
-  //   if (transform.checkError() === 0) {
-  //     transform.update();
-  //   } else {
-  //     console.log('Error, should hide image or something');
-  //   }
-  // }
   dragMoveImageListener(event) {
     let target = event.target;
-    instance.moveHouse(target, event.dx, event.dy);
+    this.moveHouse(target, event.dx, event.dy);
   }
   moveHouse(target, dx, dy) {
-    let x = instance.locationImageBase.x + dx,
-      y = instance.locationImageBase.y + dy,
+    let x = this.locationImageBase.x + dx,
+      y = this.locationImageBase.y + dy,
       endX = this.widthBase + x - this.width,
       endY = this.heightBase + y - this.height;
     if (x > 0) {
@@ -307,64 +163,13 @@ export class OverlapperComponent implements OnInit {
     target.style.webkitTransform =
       target.style.transform =
       'translate(' + x + 'px, ' + y + 'px)';
-    // update the posiion attributes
-    instance.locationImageBase.updateCoords(x, y);
-    // if (instance.lockDoor) {
-    //   let points = ['tl', 'tr', 'bl', 'br', 'tl2', 'tr2', 'bl2', 'br2'];
-    //   points.forEach(point => {
-    //     let pointDom = document.getElementById(point);
-    //     instance.movePoint(pointDom, dx, dy);
-    //   });
-    // }
+    // update the position attributes
+    this.locationImageBase.updateCoords(x, y);
+    this.images.forEach((image) => {
+      image.moveAll(dx, dy);
+    });
     return [dx, dy];
   }
-  // dragPointListener(event) {
-  //   let target = event.target;
-  //   instance.movePoint(target, event.dx, event.dy);
-  // }
-  // dragDoorListener(event) {
-  //   if (!instance.lockDoor) {
-  //     let points = event.target.id === 'image' ? ['tl', 'tr', 'bl', 'br'] : ['tl2', 'tr2', 'bl2', 'br2'];
-  //     points.forEach(point => {
-  //       let pointDom = document.getElementById(point);
-  //       instance.movePoint(pointDom, event.dx, event.dy);
-  //     });
-  //   }
-  // }
-  // movePoint(target, dx, dy) {
-  //   let id = target.getAttribute('id');
-  //   let point = instance.locationPoints[id];
-  //   let x = point.x + dx,
-  //     y = point.y + dy;
-  //   // translate the element
-  //   target.style.webkitTransform =
-  //     target.style.transform =
-  //     'translate(' + x + 'px, ' + y + 'px)';
-  //   // update the posiion attributes
-  //   point.updateCoords(x, y);
-  //   instance.updatePoint(id, x, y);
-  // }
-  // initPoint(id, x, y) {
-  //   let target = document.getElementById(id);
-  //   let point = instance.locationPoints[id];
-  //   target.style.webkitTransform =
-  //     target.style.transform =
-  //     'translate(' + x + 'px, ' + y + 'px)';
-  //   // update the posiion attributes
-  //   point.updateCoords(x, y);
-  //   this.updatePoint(target.getAttribute('id'), x, y);
-  // }
-  // toCanvas() {
-  //   console.log('Will be converted to canvas');
-    // html2canvas(document.getElementById('drag-container'), {
-    //   onrendered: (canvas) => document.body.appendChild(canvas)
-    // });
-    // html2canvas(document.getElementById('drag-container'), {
-    //   onrendered: function(canvas) {
-    //     document.body.appendChild(canvas);
-    //   }
-    // });
-  // }
   @ViewChild('dragContainer') dragContainer;
   @HostListener('window:resize', ['$event.target'])
   updateWidthFrame() {
