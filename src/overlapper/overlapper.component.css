@@ -1,0 +1,45 @@
+:host {
+    display: block;
+}
+.pt {
+    background-color: transparent;
+    cursor: pointer;
+    position: absolute;
+    border-radius: 22.5px;
+    border: solid 1px #E51937;
+    height: 45px;
+    width: 45px;
+    -webkit-transform: translate(0px, 0px);
+    transform: translate(0px, 0px);
+    margin-top: -23.5px;
+    margin-left: -23.5px;
+}
+.pt:before {
+    background-color: #E51937;
+    height: 7px;
+    width: 7px;
+    top: 19px;
+    left: 19px;
+    position: relative;
+    content: " ";
+    display: block;
+}
+.drag-container {
+    border: 1px solid black;
+    background-size: 100%;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+.imageUp {
+    position: absolute;
+}
+
+.imageDrag {
+    border: solid 1px lightgray;
+    cursor:move;
+    position: absolute;
+    -webkit-transform: translate(0px, 0px);
+    transform: translate(0px, 0px);
+
+}
