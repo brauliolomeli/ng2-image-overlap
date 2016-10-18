@@ -91,6 +91,7 @@ export class OverlapperComponent implements OnInit {
   factor: number;
   images: models.DisplayingImage[] = [];
   @ViewChild('dragContainer') dragContainer: any;
+  last: number = 0;
   private width: number;
   _zoom: number;
   // Background image
@@ -196,7 +197,7 @@ export class OverlapperComponent implements OnInit {
           image,
           this.locationImageBase,
           this.factor,
-          this.images.length,
+          this.last++,
           this.zoom,
           this
         );
