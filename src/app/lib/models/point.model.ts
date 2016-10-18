@@ -49,4 +49,11 @@ export class Point {
                 'translate(' + this.x + 'px, ' + this.y + 'px)';
         }
     }
+    toAbsolute(zoom: number, factor: number, locationImageBase: model.Point): model.Point {
+        zoom = zoom || 100;
+        return new model.Point(
+            (this.x - locationImageBase.x) * factor / (zoom * 0.01),
+            (this.y - locationImageBase.y) * factor / (zoom * 0.01),
+        );
+    }
 }

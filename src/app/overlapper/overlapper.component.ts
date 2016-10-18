@@ -1,5 +1,14 @@
-import { Component, OnInit, Input, HostListener, NgZone, ElementRef, ViewChild } from '@angular/core';
-import { OverlapperService } from '../lib/overlapper.service';
+import {
+  Component,
+  OnInit,
+  Input,
+  HostListener,
+  NgZone,
+  ElementRef,
+  ViewChild,
+  Output,
+  EventEmitter
+} from '@angular/core';
 
 import * as interact from 'interact.js';
 import * as models from '../lib/models';
@@ -10,6 +19,7 @@ import * as models from '../lib/models';
   styleUrls: ['overlapper.component.css']
 })
 export class OverlapperComponent implements OnInit {
+  @Output() updatePoint: any = new EventEmitter();
   widthBase: number = 0;
   heightBase: number = 0;
   locationImageBase: models.Point = new models.Point(0, 0);
@@ -46,6 +56,10 @@ export class OverlapperComponent implements OnInit {
       this.factor = 1;
     }
   }
+  // Main image this.setImageBase(image);
+  @Input('mainImage') set mainImage(image: string) {
+    this.setImageBase(image);
+  }
   // zoom
   _zoom: number;
   get zoom(): number {
@@ -58,6 +72,9 @@ export class OverlapperComponent implements OnInit {
       this.updatePointsOnZoom(previousZoom, value, this.width, this.width);
     }
   }
+  sendUpdatedPoint(imageIndex: number, pointIndex: number, newX: number, newY: number) {
+    this.updatePoint.emit({imageIndex, pointIndex, newX, newY});
+  }
   updatePointsOnZoom(previousZoom, newZoom, previousWidth, newWidth) {
     let widthBaseBefore = this.widthBase,
       heightBaseBefore = this.heightBase,
@@ -66,14 +83,14 @@ export class OverlapperComponent implements OnInit {
     this.updateWidthBase();
     let target = document.getElementById('imageBase');
     if (newZoom === 100) {
-      this.moveHouse(target, -this.locationImageBase.x, -this.locationImageBase.y);
+      this.moveImageBase(target, -this.locationImageBase.x, -this.locationImageBase.y);
     } else {
       adjustCenterZoomX = -(this.widthBase - widthBaseBefore) / 2;
       adjustCenterZoomY = -(this.heightBase - heightBaseBefore) / 2;
       adjustCenterZoomX = adjustCenterZoomX || 0;
       adjustCenterZoomY = adjustCenterZoomY || 0;
       if (adjustCenterZoomX !== 0 || adjustCenterZoomY !== 0) {
-        let adjustCenterZoom = this.moveHouse(target, adjustCenterZoomX, adjustCenterZoomY);
+        let adjustCenterZoom = this.moveImageBase(target, adjustCenterZoomX, adjustCenterZoomY);
         adjustCenterZoomX = adjustCenterZoom[0];
         adjustCenterZoomY = adjustCenterZoom[1];
       }
@@ -87,7 +104,6 @@ export class OverlapperComponent implements OnInit {
     this.heightBase = this.widthBase * this.height / this.width;
   }
   constructor(
-    private overlapperService: OverlapperService,
     private elementRef: ElementRef,
     zone: NgZone
   ) {
@@ -105,7 +121,6 @@ export class OverlapperComponent implements OnInit {
         },
         onend: null
       });
-      this.overlapperService.obsImages.subscribe((images: models.Image[]) => this.onImagesChange(images));
     }
   }
   onImagesChange(images: models.Image[]) {
@@ -119,26 +134,22 @@ export class OverlapperComponent implements OnInit {
           this.factor,
           this.images.length,
           this.zoom,
-          this.overlapperService
+          this
         );
         this.images.push(displayingImage);
         displayingImage.initPerspectiveTransform();
       });
     } else {
-      console.log('changed', this.overlapperService.getImages());
     }
   }
   ngOnInit() {
     this.updateWidthFrame();
-    this.overlapperService.obsMainImage.subscribe((image: string) => {
-      this.setImageBase(image);
-    });
   }
   dragMoveImageListener(event) {
     let target = event.target;
-    this.moveHouse(target, event.dx, event.dy);
+    this.moveImageBase(target, event.dx, event.dy);
   }
-  moveHouse(target, dx, dy) {
+  moveImageBase(target, dx, dy) {
     let x = this.locationImageBase.x + dx,
       y = this.locationImageBase.y + dy,
       endX = this.widthBase + x - this.width,
@@ -166,7 +177,7 @@ export class OverlapperComponent implements OnInit {
     // update the position attributes
     this.locationImageBase.updateCoords(x, y);
     this.images.forEach((image) => {
-      image.moveAll(dx, dy);
+      image.moveAll(dx, dy, this.locationImageBase);
     });
     return [dx, dy];
   }

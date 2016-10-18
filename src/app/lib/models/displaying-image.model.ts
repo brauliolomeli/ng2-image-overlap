@@ -1,4 +1,4 @@
-import { OverlapperService } from '../overlapper.service';
+import { OverlapperComponent } from '../../overlapper/overlapper.component';
 import { PerspectiveTransform } from '../PerspectiveTransform';
 import * as model from './';
 import * as interact from 'interact.js';
@@ -14,25 +14,31 @@ export class DisplayingImage {
     public height: number;
     public corners: any = { 'tl': 0, 'tr': 1, 'bl': 2, 'br': 3 };
     public doorLocked: boolean = true;
-    public overlapperService: OverlapperService;
+    public zoom: number;
+    public factor: number;
+    public locationImageBase: model.Point;
+    overlapperComponent: OverlapperComponent;
     constructor(
         parent: model.Image,
         locationImageBase: model.Point,
         factor: number,
         index: number,
         zoom: number,
-        overlapperService: OverlapperService
+        overlapperComponent: OverlapperComponent
     ) {
         this.id = 'img_' + index;
         this.index = index;
         this.parent = parent;
         this.polygon = model.Polygon.calcRateFactor(locationImageBase, factor, parent, index, zoom);
-        this.overlapperService = overlapperService;
+        this.overlapperComponent = overlapperComponent;
+        this.zoom = zoom;
+        this.factor = factor;
+        this.locationImageBase = locationImageBase;
         (<any>window).appImage[this.id] = this;
     }
-    sendPointToMainService(index: number, point: number, x: number, y: number) {
-        // TODO: convert x and y to absolute point
-        this.overlapperService.updatePoint(index, point, x, y);
+    sendPointToMainService(imageIndex: number, pointIndex: number, point: model.Point) {
+        let absPoint = point.toAbsolute(this.zoom, this.factor, this.locationImageBase);
+        this.overlapperComponent.sendUpdatedPoint(imageIndex, pointIndex, absPoint.x, absPoint.y);
     }
     initPerspectiveTransform() {
         let dataImage = new Image();
@@ -110,7 +116,7 @@ export class DisplayingImage {
         let corner = target.attributes.getNamedItem('corner').value;
         let point: model.Point = this.polygon.points[this.corners[corner]];
         point.move(event.dx, event.dy, true);
-        this.sendPointToMainService(this.index, this.corners[corner], point.x, point.y);
+        this.sendPointToMainService(this.index, this.corners[corner], point);
         this.moveCornerPerspective(point);
     }
     // Move all points and update perspective image when the door is dragged
@@ -118,7 +124,7 @@ export class DisplayingImage {
         if (!this.doorLocked) {
             this.polygon.points.forEach((point: model.Point, index) => {
                 point.move(event.dx, event.dy, true);
-                this.sendPointToMainService(this.index, index, point.x, point.y);
+                this.sendPointToMainService(this.index, index, point);
                 this.moveCornerPerspective(point);
             });
         }
@@ -131,6 +137,8 @@ export class DisplayingImage {
         previousWidth: number,
         newWidth: number
     ) {
+        this.locationImageBase = locationImageBase;
+        this.zoom = newZoom;
         previousZoom = previousZoom ? previousZoom : 100;
         this.polygon.points.forEach(point => {
             let relativeX = point.x - locationImageBase.x;
@@ -147,8 +155,9 @@ export class DisplayingImage {
             this.moveCornerPerspective(point);
         });
     }
-    // Move all points when house is dragged
-    moveAll(dx: number, dy: number) {
+    // Move all points when ImageBase is dragged
+    moveAll(dx: number, dy: number, locationImageBase: model.Point) {
+        this.locationImageBase = locationImageBase;
         this.polygon.points.forEach(point => {
             point.move(dx, dy, true);
             this.moveCornerPerspective(point);

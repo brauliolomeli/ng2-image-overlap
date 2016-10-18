@@ -1,5 +1,9 @@
 
-<app-overlapper [zoom]="zoom"></app-overlapper>
+<app-overlapper
+    [zoom]="zoom"
+    [mainImage]="mainImage"
+    (updatePoint)="updatePoint($event)"
+    #overlapper></app-overlapper>
 
 <button (click)="deleteLast()">Delete last</button><br>
 Duplicate door<input type="checkbox" name="duplicate-door" [(ngModel)]="duplicateDoor">
