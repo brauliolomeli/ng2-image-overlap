@@ -15,8 +15,71 @@ import * as models from '../lib/models';
 
 @Component({
   selector: 'app-overlapper',
-  template: require('overlapper.component.html'),
-  styles: [require('overlapper.component.css')]
+  template: `
+    <div class="drag-container" id="drag-container"
+      [ngStyle]="{'height': height + 'px' }"
+      #dragContainer>
+      <img src="{{imageBase}}" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" />
+      <template ngFor let-image [ngForOf]="images" let-i="index">
+          <div class="imageUp" [id]="image.id" 
+          [ngStyle]="{'width' : image.width + 'px', 'height': image.height + 'px', 'background-image': 'url(' + image.parent.url + ')' }">
+          </div>
+          <div
+              *ngFor="let point of image.polygon.points" 
+              [id]="point.id" class="pt draggable {{point.type}} draggable_{{image.id}}"
+              [attr.corner]="point.type"
+              [ngStyle]="{'visibility': image.doorLocked ? 'hidden':'visible'}">
+              </div>
+      </template>
+  </div>
+  `,
+  styles: [`
+  :host {
+        display: block;
+    }
+    .pt {
+        background-color: transparent;
+        cursor: pointer;
+        position: absolute;
+        border-radius: 22.5px;
+        border: solid 1px #E51937;
+        height: 45px;
+        width: 45px;
+        -webkit-transform: translate(0px, 0px);
+        transform: translate(0px, 0px);
+        margin-top: -23.5px;
+        margin-left: -23.5px;
+    }
+    .pt:before {
+        background-color: #E51937;
+        height: 7px;
+        width: 7px;
+        top: 19px;
+        left: 19px;
+        position: relative;
+        content: " ";
+        display: block;
+    }
+    .drag-container {
+        border: 1px solid black;
+        background-size: 100%;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+    }
+    .imageUp {
+        position: absolute;
+    }
+
+    .imageDrag {
+        border: solid 1px lightgray;
+        cursor:move;
+        position: absolute;
+        -webkit-transform: translate(0px, 0px);
+        transform: translate(0px, 0px);
+
+    }
+  `]
 })
 export class OverlapperComponent implements OnInit {
   @Output() updatePoint: any = new EventEmitter();
