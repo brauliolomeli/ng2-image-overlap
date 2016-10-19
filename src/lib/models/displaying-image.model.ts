@@ -29,12 +29,39 @@ export class DisplayingImage {
         this.id = 'img_' + index + new Date().getTime();
         this.index = index;
         this.parent = parent;
-        this.polygon = model.Polygon.calcRateFactor(locationImageBase, factor, parent, index, zoom);
         this.overlapperComponent = overlapperComponent;
+        let polygonChanged = false;
+        if (parent.polygon.points[3].x === 0) {
+            // the polygon is not defined, define it according to image index
+            let order = [2, 1, 3],
+                width = this.overlapperComponent.dataImageBase.width / 3,
+                height = this.overlapperComponent.dataImageBase.height / 3,
+                x = order[index % 3],
+                y = order[Math.floor(index / 3) % 3],
+                marginX = width / 10,
+                marginY = height / 10,
+                startX = (width * (x - 1)) + marginX,
+                endX = (width * x) - marginX,
+                startY = (height * (y - 1)) + marginY,
+                endY = (height * y) - marginY;
+            this.parent.polygon = new model.Polygon([
+                new model.Point(startX, startY),
+                new model.Point(endX, startY),
+                new model.Point(startX, endY),
+                new model.Point(endX, endY)
+            ]);
+            polygonChanged = true;
+        }
+        this.polygon = model.Polygon.calcRateFactor(locationImageBase, factor, parent, index, zoom);
         this.zoom = zoom;
         this.factor = factor;
         this.locationImageBase = locationImageBase;
         (<any>window).appImage[this.id] = this;
+        if (polygonChanged) {
+            for (let i = 0; i <= 3; i++) {
+                this.sendPointToMainService(this.index, i, this.parent.polygon.points[i]);
+            }
+        }
     }
     sendPointToMainService(imageIndex: number, pointIndex: number, point: model.Point) {
         let absPoint = point.toAbsolute(this.zoom, this.factor, this.locationImageBase);
