@@ -97,16 +97,34 @@ export class OverlapperComponent implements OnInit {
   imageBaseInitialised: boolean = false;
   private imageBase: string;
   setImageBase(value: string) {
-      this.imageBase = value;
-      this.dataImageBase = new Image();
-      this.dataImageBase.onload = () => {
-        this.factor = this.dataImageBase.width / this.width;
-        this.height = this.width * this.dataImageBase.height / this.dataImageBase.width;
-        this.initImageBase();
-        this.zoom = this.zoom;
-        this.updateWidthBase();
-      };
-      this.dataImageBase.src = value;
+    let tmpImages: models.Image[] = [];
+    this.images.forEach((image: models.DisplayingImage) => {
+      tmpImages.push(
+        new models.Image(
+          image.parent.url,
+          new models.Polygon([
+            new models.Point(0, 0),
+            new models.Point(0, 0),
+            new models.Point(0, 0),
+            new models.Point(0, 0)
+          ])
+        )
+      );
+    });
+    this.onImagesChange([]);
+    this.imageBase = value;
+    this.dataImageBase = new Image();
+    this.dataImageBase.onload = () => {
+      this.factor = this.dataImageBase.width / this.width;
+      this.height = this.width * this.dataImageBase.height / this.dataImageBase.width;
+      this.initImageBase();
+      this.zoom = this.zoom;
+      this.updateWidthBase();
+      setTimeout(() => {
+        this.onImagesChange(tmpImages);
+      }, 0);
+    };
+    this.dataImageBase.src = value;
   }
   // Width
   setWidth(value: number) {
@@ -127,7 +145,7 @@ export class OverlapperComponent implements OnInit {
   }
   // zoom
   get zoom(): number {
-      return this._zoom;
+    return this._zoom;
   }
   @Input('zoom') set zoom(value: number) {
     if (this.imageBaseInitialised) {
@@ -137,9 +155,11 @@ export class OverlapperComponent implements OnInit {
     }
   }
   sendUpdatedPoint(imageIndex: number, pointIndex: number, newX: number, newY: number) {
-    this.updatePoint.emit({imageIndex, pointIndex, newX, newY});
+    this.updatePoint.emit({ imageIndex, pointIndex, newX, newY });
   }
   updatePointsOnZoom(previousZoom: number, newZoom: number, previousWidth: number, newWidth: number) {
+    previousZoom = previousZoom || 100;
+    newZoom = newZoom || 100;
     let widthBaseBefore = this.widthBase,
       heightBaseBefore = this.heightBase,
       adjustCenterZoomX = 0,
@@ -177,14 +197,14 @@ export class OverlapperComponent implements OnInit {
     if (!this.imageBaseInitialised) {
       this.imageBaseInitialised = true;
       interact('.imageDrag')
-      .draggable({
-        inertia: false,
-        autoScroll: false,
-        onmove: (event: any) => {
-          this.dragMoveImageListener(event);
-        },
-        onend: null
-      });
+        .draggable({
+          inertia: false,
+          autoScroll: false,
+          onmove: (event: any) => {
+            this.dragMoveImageListener(event);
+          },
+          onend: null
+        });
     }
   }
   onImagesChange(images: models.Image[]) {
