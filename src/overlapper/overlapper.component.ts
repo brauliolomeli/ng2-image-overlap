@@ -28,7 +28,7 @@ import * as models from '../lib/models';
               *ngFor="let point of image.polygon.points" 
               [id]="point.id" class="pt draggable {{point.type}} draggable_{{image.id}}"
               [attr.corner]="point.type"
-              [ngStyle]="{'visibility': image.doorLocked ? 'hidden':'visible'}">
+              [ngStyle]="{'visibility': image.imageLocked ? 'hidden':'visible'}">
               </div>
       </template>
   </div>

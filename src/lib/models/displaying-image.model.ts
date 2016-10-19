@@ -13,7 +13,7 @@ export class DisplayingImage {
     public width: number;
     public height: number;
     public corners: any = { 'tl': 0, 'tr': 1, 'bl': 2, 'br': 3 };
-    public doorLocked: boolean = true;
+    public imageLocked: boolean = true;
     public zoom: number;
     public factor: number;
     public locationImageBase: model.Point;
@@ -78,10 +78,10 @@ export class DisplayingImage {
                 this.polygon.points[i].updatePoint();
                 this.moveCornerPerspective(this.polygon.points[i]);
             }
-            this.toggleDragDoor();
+            this.toggleDragImage();
             interact('#' + this.id).on('tap', (event: any) => {
                 (<any>window).zoneImpl.run(() =>
-                    (<any>window).appImage[this.id].toggleDragDoor(true));
+                    (<any>window).appImage[this.id].toggleDragImage(true));
             });
         };
         dataImage.src = this.parent.url;
@@ -98,12 +98,12 @@ export class DisplayingImage {
                 }
             }, 0);
     }
-    // Toggle dragging door
-    toggleDragDoor(toggle = false) {
+    // Toggle dragging image
+    toggleDragImage(toggle = false) {
         if (toggle) {
-            this.doorLocked = !this.doorLocked;
+            this.imageLocked = !this.imageLocked;
         }
-        if (this.doorLocked) {
+        if (this.imageLocked) {
             interact('.draggable' + this.id).draggable({ enabled: false });
             interact('#' + this.id).draggable({ enabled: false });
         } else {
@@ -131,7 +131,7 @@ export class DisplayingImage {
                     },
                     autoScroll: false,
                     onmove: (event: any) => {
-                        this.dragDoorListener(event);
+                        this.dragImageListener(event);
                     },
                     onend: null
                 });
@@ -146,9 +146,9 @@ export class DisplayingImage {
         this.sendPointToMainService(this.index, this.corners[corner], point);
         this.moveCornerPerspective(point);
     }
-    // Move all points and update perspective image when the door is dragged
-    dragDoorListener(event: any) {
-        if (!this.doorLocked) {
+    // Move all points and update perspective image when the image is dragged
+    dragImageListener(event: any) {
+        if (!this.imageLocked) {
             this.polygon.points.forEach((point: model.Point, index: number) => {
                 point.move(event.dx, event.dy, true);
                 this.sendPointToMainService(this.index, index, point);
