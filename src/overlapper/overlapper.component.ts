@@ -97,7 +97,7 @@ export class OverlapperComponent implements OnInit {
   imageBaseInitialised: boolean = false;
   private imageBase: string;
   setImageBase(value: string) {
-    let tmpImages = [];
+    let tmpImages: models.Image[] = [];
     this.images.forEach((image: models.DisplayingImage) => {
       tmpImages.push(
         new models.Image(
