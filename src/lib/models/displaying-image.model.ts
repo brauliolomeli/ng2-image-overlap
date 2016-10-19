@@ -26,7 +26,7 @@ export class DisplayingImage {
         zoom: number,
         overlapperComponent: OverlapperComponent
     ) {
-        this.id = 'img_' + index;
+        this.id = 'img_' + index + new Date().getTime();
         this.index = index;
         this.parent = parent;
         this.polygon = model.Polygon.calcRateFactor(locationImageBase, factor, parent, index, zoom);
