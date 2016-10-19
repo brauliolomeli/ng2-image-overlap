@@ -208,7 +208,6 @@ export class OverlapperComponent implements OnInit {
     }
   }
   onImagesChange(images: models.Image[]) {
-    console.log(images, this.images);
     if (images.length < this.images.length) {
       this.images = this.images.slice(0, images.length);
     } else if (images.length > this.images.length) {
