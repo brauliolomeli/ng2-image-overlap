@@ -27,18 +27,20 @@ export class PerspectiveTransform {
     bM = [0, 0, 0, 0, 0, 0, 0, 0];
     app = {stylePrefix: ''};
     constructor(element: any, width: number, height: number, useBackFacing: boolean) {
-        this.element = element;
-        this.style = element.style;
-        this.computedStyle = window.getComputedStyle(element);
-        this.width = width;
-        this.height = height;
-        this.useBackFacing = !!useBackFacing;
+        if (element) {
+            this.element = element;
+            this.style = element.style;
+            this.computedStyle = window.getComputedStyle(element);
+            this.width = width;
+            this.height = height;
+            this.useBackFacing = !!useBackFacing;
 
-        this.topLeft = new models.Point(0, 0);
-        this.topRight = new models.Point(width, 0);
-        this.bottomLeft = new models.Point(0, height);
-        this.bottomRight = new models.Point(width, height);
-        this._setTransformStyleName();
+            this.topLeft = new models.Point(0, 0);
+            this.topRight = new models.Point(width, 0);
+            this.bottomLeft = new models.Point(0, height);
+            this.bottomRight = new models.Point(width, height);
+            this._setTransformStyleName();
+        }
     }
     private _setTransformStyleName() {
         let testStyle = document.createElement('div').style;

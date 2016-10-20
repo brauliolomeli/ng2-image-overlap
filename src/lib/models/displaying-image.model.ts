@@ -67,7 +67,7 @@ export class DisplayingImage {
         let absPoint = point.toAbsolute(this.zoom, this.factor, this.locationImageBase);
         this.overlapperComponent.sendUpdatedPoint(imageIndex, pointIndex, absPoint.x, absPoint.y);
     }
-    initPerspectiveTransform() {
+    initPerspectiveTransform(TapDoorToUnlock: boolean) {
         let dataImage = new Image();
         dataImage.onload = () => {
             this.width = dataImage.width;
@@ -79,24 +79,28 @@ export class DisplayingImage {
                 this.moveCornerPerspective(this.polygon.points[i]);
             }
             this.toggleDragImage();
-            interact('#' + this.id).on('tap', (event: any) => {
-                (<any>window).zoneImpl.run(() =>
-                    (<any>window).appImage[this.id].toggleDragImage(true));
-            });
+            if (TapDoorToUnlock) {
+                interact('#' + this.id).on('tap', (event: any) => {
+                    (<any>window).zoneImpl.run(() =>
+                        (<any>window).appImage[this.id].toggleDragImage(true));
+                });
+            }
         };
         dataImage.src = this.parent.url;
     }
     // Update perspective image after a point is dragged
     moveCornerPerspective(point: model.Point) {
-        this.perspective[point.extraOptions.transformAttribute]
-            .updateCoords(point.x, point.y);
-            setTimeout(() => {
-                if (this.perspective.checkError() === 0) {
-                    this.perspective.update();
-                } else {
-                    console.log('Error, should hide image or something');
-                }
-            }, 0);
+        if (this.perspective[point.extraOptions.transformAttribute]) {
+            this.perspective[point.extraOptions.transformAttribute]
+                .updateCoords(point.x, point.y);
+                setTimeout(() => {
+                    if (this.perspective.checkError() === 0) {
+                        this.perspective.update();
+                    } else {
+                        console.log('Error, should hide image or something');
+                    }
+                }, 0);
+        }
     }
     // Toggle dragging image
     toggleDragImage(toggle = false) {

@@ -45,7 +45,7 @@
     "tslint": "3.13.0",
     "typescript": "2.0.2",
     "typings":"^1.0.4",
-    "@types/interact.js": "1.0.19",
+    "@types/interact.js": "1.0.20",
     "ts-node": "1.2.1"
   }
 }
