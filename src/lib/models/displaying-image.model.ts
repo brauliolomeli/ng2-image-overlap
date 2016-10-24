@@ -13,7 +13,7 @@ export class DisplayingImage {
     public width: number;
     public height: number;
     public corners: any = { 'tl': 0, 'tr': 1, 'bl': 2, 'br': 3 };
-    public doorLocked: boolean = true;
+    public imageLocked: boolean = true;
     public zoom: number;
     public factor: number;
     public locationImageBase: model.Point;
@@ -67,54 +67,53 @@ export class DisplayingImage {
         let absPoint = point.toAbsolute(this.zoom, this.factor, this.locationImageBase);
         this.overlapperComponent.sendUpdatedPoint(imageIndex, pointIndex, absPoint.x, absPoint.y);
     }
-    initPerspectiveTransform() {
+    initPerspectiveTransform(TapDoorToUnlock: boolean) {
         let dataImage = new Image();
         dataImage.onload = () => {
             this.width = dataImage.width;
             this.height = dataImage.height;
             let img = document.getElementById(this.id);
-            this.perspective = new PerspectiveTransform(img, this.width, this.height, true);
+            this.perspective = new PerspectiveTransform(img, this.width, this.height, false);
             for (let i = this.polygon.points.length - 1; i >= 0; i--) {
                 this.polygon.points[i].updatePoint();
                 this.moveCornerPerspective(this.polygon.points[i]);
             }
-            this.toggleDragDoor();
-            interact('#' + this.id).on('tap', (event: any) => {
-                (<any>window).zoneImpl.run(() =>
-                    (<any>window).appImage[this.id].toggleDragDoor(true));
-            });
+            this.toggleDragImage();
+            if (TapDoorToUnlock) {
+                interact('#' + this.id).on('tap', (event: any) => {
+                    (<any>window).zoneImpl.run(() =>
+                        (<any>window).appImage[this.id].toggleDragImage(true));
+                });
+            }
         };
         dataImage.src = this.parent.url;
     }
     // Update perspective image after a point is dragged
     moveCornerPerspective(point: model.Point) {
-        this.perspective[point.extraOptions.transformAttribute]
-            .updateCoords(point.x, point.y);
-            setTimeout(() => {
-                if (this.perspective.checkError() === 0) {
-                    this.perspective.update();
-                } else {
-                    console.log('Error, should hide image or something');
-                }
-            }, 0);
-    }
-    // Toggle dragging door
-    toggleDragDoor(toggle = false) {
-        if (toggle) {
-            this.doorLocked = !this.doorLocked;
+        if (this.perspective[point.extraOptions.transformAttribute]) {
+            this.perspective[point.extraOptions.transformAttribute]
+                .updateCoords(point.x, point.y);
+                setTimeout(() => {
+                    if (this.perspective.checkError() === 0) {
+                        this.perspective.update();
+                    } else {
+                        console.log('Error, should hide image or something');
+                    }
+                }, 0);
         }
-        if (this.doorLocked) {
+    }
+    // Toggle dragging image
+    toggleDragImage(toggle = false) {
+        if (toggle) {
+            this.imageLocked = !this.imageLocked;
+        }
+        if (this.imageLocked) {
             interact('.draggable' + this.id).draggable({ enabled: false });
             interact('#' + this.id).draggable({ enabled: false });
         } else {
             interact('.draggable_' + this.id)
                 .draggable({
                     inertia: true,
-                    restrict: {
-                        restriction: 'parent',
-                        endOnly: true,
-                        elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-                    },
                     autoScroll: false,
                     onmove: (event: any) => {
                         this.dragPointListener(event);
@@ -131,7 +130,7 @@ export class DisplayingImage {
                     },
                     autoScroll: false,
                     onmove: (event: any) => {
-                        this.dragDoorListener(event);
+                        this.dragImageListener(event);
                     },
                     onend: null
                 });
@@ -142,13 +141,45 @@ export class DisplayingImage {
         let target = event.target;
         let corner = target.attributes.getNamedItem('corner').value;
         let point: model.Point = this.polygon.points[this.corners[corner]];
-        point.move(event.dx, event.dy, true);
-        this.sendPointToMainService(this.index, this.corners[corner], point);
-        this.moveCornerPerspective(point);
+        if (!this.hasPolyonError(this.polygon.points, event.dx, event.dy, this.corners[corner])) {
+            point.move(event.dx, event.dy, true);
+            this.sendPointToMainService(this.index, this.corners[corner], point);
+            this.moveCornerPerspective(point);
+        } else {
+            console.log('Polygon has error');
+        }
     }
-    // Move all points and update perspective image when the door is dragged
-    dragDoorListener(event: any) {
-        if (!this.doorLocked) {
+    // Get the determinant of given 3 points
+    private _getDeterminant(p0: any, p1: any, p2: any) {
+        return p0.x * p1.y + p1.x * p2.y + p2.x * p0.y - p0.y * p1.x - p1.y * p2.x - p2.y * p0.x;
+    }
+    hasPolyonError(pointsOrigin: model.Point[], dx: number, dy: number, pointPosition: number) {
+        let points: model.Point[] = pointsOrigin.map((point, index) => {
+            let sumX = pointPosition === index ? dx : 0,
+                sumY = pointPosition === index ? dy : 0;
+            return new model.Point(point.x + sumX, point.y + sumY);
+        });
+        let det1 = this._getDeterminant(points[0], points[1], points[3]);
+        let det2 = this._getDeterminant(points[3], points[2], points[0]);
+        if (det1 <= 0 || det2 <= 0) {
+            return true;
+        }
+        det1 = this._getDeterminant(points[1], points[3], points[2]);
+        det2 = this._getDeterminant(points[2], points[0], points[1]);
+        if (det1 <= 0 || det2 <= 0) {
+            return true;
+        }
+        if (points[pointPosition].x > this.overlapperComponent.width ||
+            points[pointPosition].y > this.overlapperComponent.height ||
+            points[pointPosition].x < 0 ||
+            points[pointPosition].y < 0) {
+            return true;
+        }
+        return false;
+    }
+    // Move all points and update perspective image when the image is dragged
+    dragImageListener(event: any) {
+        if (!this.imageLocked) {
             this.polygon.points.forEach((point: model.Point, index: number) => {
                 point.move(event.dx, event.dy, true);
                 this.sendPointToMainService(this.index, index, point);

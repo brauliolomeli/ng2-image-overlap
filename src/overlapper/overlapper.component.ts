@@ -28,7 +28,7 @@ import * as models from '../lib/models';
               *ngFor="let point of image.polygon.points" 
               [id]="point.id" class="pt draggable {{point.type}} draggable_{{image.id}}"
               [attr.corner]="point.type"
-              [ngStyle]="{'visibility': image.doorLocked ? 'hidden':'visible'}">
+              [ngStyle]="{'visibility': image.imageLocked ? 'hidden':'visible'}">
               </div>
       </template>
   </div>
@@ -89,9 +89,10 @@ export class OverlapperComponent implements OnInit {
   dataImageBase: any;
   height: number;
   factor: number;
+  @Input('TapDoorToUnlock') TapDoorToUnlock: boolean = true;
   images: models.DisplayingImage[] = [];
   @ViewChild('dragContainer') dragContainer: any;
-  private width: number;
+  width: number;
   _zoom: number;
   // Background image
   imageBaseInitialised: boolean = false;
@@ -153,6 +154,12 @@ export class OverlapperComponent implements OnInit {
       this._zoom = value;
       this.updatePointsOnZoom(previousZoom, value, this.width, this.width);
     }
+  }
+  // Lock/unlock images
+  setLockImages(lockImages: boolean) {
+    this.images.forEach(image => {
+      image.imageLocked = lockImages;
+    });
   }
   sendUpdatedPoint(imageIndex: number, pointIndex: number, newX: number, newY: number) {
     this.updatePoint.emit({ imageIndex, pointIndex, newX, newY });
@@ -221,7 +228,7 @@ export class OverlapperComponent implements OnInit {
           this
         );
         this.images.push(displayingImage);
-        displayingImage.initPerspectiveTransform();
+        displayingImage.initPerspectiveTransform(this.TapDoorToUnlock);
       });
     } else {
     }

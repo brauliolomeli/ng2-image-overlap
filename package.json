@@ -1,6 +1,6 @@
 {
   "name": "ng2-image-overlap",
-  "version": "0.1.7",
+  "version": "0.1.10",
   "license": "MIT",
   "scripts": {
     "lint": "tslint src/**/*.ts",
@@ -45,7 +45,7 @@
     "tslint": "3.13.0",
     "typescript": "2.0.2",
     "typings":"^1.0.4",
-    "@types/interact.js": "1.0.19",
+    "@types/interact.js": "1.0.20",
     "ts-node": "1.2.1"
   }
 }
