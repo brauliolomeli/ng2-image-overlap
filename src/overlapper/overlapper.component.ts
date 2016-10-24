@@ -92,7 +92,7 @@ export class OverlapperComponent implements OnInit {
   @Input('TapDoorToUnlock') TapDoorToUnlock: boolean = true;
   images: models.DisplayingImage[] = [];
   @ViewChild('dragContainer') dragContainer: any;
-  private width: number;
+  width: number;
   _zoom: number;
   // Background image
   imageBaseInitialised: boolean = false;
