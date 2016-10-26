@@ -1,6 +1,6 @@
 {
   "name": "ng2-image-overlap",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "license": "MIT",
   "scripts": {
     "lint": "tslint src/**/*.ts",

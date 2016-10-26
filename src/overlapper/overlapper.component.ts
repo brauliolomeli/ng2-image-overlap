@@ -9,6 +9,7 @@ import {
   Output,
   EventEmitter
 } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 
 import * as interact from 'interact.js';
 import * as models from '../lib/models';
@@ -125,7 +126,7 @@ export class OverlapperComponent implements OnInit {
         this.onImagesChange(tmpImages);
       }, 0);
     };
-    this.dataImageBase.src = value;
+    this.dataImageBase.src = this.domSanitizer.bypassSecurityTrustUrl(value);
   }
   // Width
   setWidth(value: number) {
@@ -196,7 +197,8 @@ export class OverlapperComponent implements OnInit {
   }
   constructor(
     private elementRef: ElementRef,
-    zone: NgZone
+    zone: NgZone,
+    private domSanitizer: DomSanitizer
   ) {
     (<any>window).zoneImpl = zone;
   }
