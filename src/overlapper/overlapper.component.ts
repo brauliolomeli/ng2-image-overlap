@@ -20,7 +20,7 @@ import * as models from '../lib/models';
     <div class="drag-container" id="drag-container"
       [ngStyle]="{'height': height + 'px' }"
       #dragContainer>
-      <img src="{{imageBaseInitialised}}" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" />
+      <img [src]="imageBaseInitialised" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" />
       <template ngFor let-image [ngForOf]="images" let-i="index">
           <div class="imageUp" [id]="image.id" 
           [ngStyle]="{'width' : image.width + 'px', 'height': image.height + 'px', 'background-image': 'url(' + image.parent.url + ')' }">
