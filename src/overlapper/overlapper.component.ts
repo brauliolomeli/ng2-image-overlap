@@ -127,7 +127,7 @@ export class OverlapperComponent implements OnInit {
         this.onImagesChange(tmpImages);
       }, 0);
     };
-    this.dataImageBase.src = this.domSanitizer.bypassSecurityTrustUrl(value);
+    this.dataImageBase.src = value;
     this.dataImageBaseSanitized = this.domSanitizer.bypassSecurityTrustUrl(value);
   }
   // Width
