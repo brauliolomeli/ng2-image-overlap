@@ -100,6 +100,7 @@ export class OverlapperComponent implements OnInit {
   private imageBase: string;
   private dataImageBaseSanitized: SafeUrl;
   setImageBase(value: string) {
+    console.log(` image ${value} `);
     let tmpImages: models.Image[] = [];
     this.images.forEach((image: models.DisplayingImage) => {
       tmpImages.push(
