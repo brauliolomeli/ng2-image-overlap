@@ -9,7 +9,7 @@ import {
   Output,
   EventEmitter
 } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
 
 import * as interact from 'interact.js';
 import * as models from '../lib/models';
@@ -20,7 +20,7 @@ import * as models from '../lib/models';
     <div class="drag-container" id="drag-container"
       [ngStyle]="{'height': height + 'px' }"
       #dragContainer>
-      <img src="{{imageBase}}" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" />
+      <img src="{{imageBaseInitialised}}" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" />
       <template ngFor let-image [ngForOf]="images" let-i="index">
           <div class="imageUp" [id]="image.id" 
           [ngStyle]="{'width' : image.width + 'px', 'height': image.height + 'px', 'background-image': 'url(' + image.parent.url + ')' }">
@@ -98,6 +98,7 @@ export class OverlapperComponent implements OnInit {
   // Background image
   imageBaseInitialised: boolean = false;
   private imageBase: string;
+  private dataImageBaseSanitized: SafeUrl;
   setImageBase(value: string) {
     let tmpImages: models.Image[] = [];
     this.images.forEach((image: models.DisplayingImage) => {
@@ -127,6 +128,7 @@ export class OverlapperComponent implements OnInit {
       }, 0);
     };
     this.dataImageBase.src = this.domSanitizer.bypassSecurityTrustUrl(value);
+    this.dataImageBaseSanitized = this.domSanitizer.bypassSecurityTrustUrl(value);
   }
   // Width
   setWidth(value: number) {
