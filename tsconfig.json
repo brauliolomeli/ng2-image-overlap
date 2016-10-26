@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "noImplicitAny": true,
-    "module": "commonjs",
+    "module": "es6",
+    "lib": ["es6", "dom"],
+    "moduleResolution": "node",
     "target": "ES5",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -10,11 +12,13 @@
     "outDir": "./dist"
   },
   "files": [
-    "typings/index.d.ts",
     "src/index.ts"
   ],
   "exclude": [
     "node_modules",
     "dist"
+  ],
+  "typeRoots": [
+    "../node_modules/@types"
   ]
 }
