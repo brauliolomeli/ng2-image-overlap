@@ -70,21 +70,23 @@ export class DisplayingImage {
     initPerspectiveTransform(TapDoorToUnlock: boolean) {
         let dataImage = new Image();
         dataImage.onload = () => {
-            this.width = dataImage.width;
-            this.height = dataImage.height;
-            let img = document.getElementById(this.id);
-            this.perspective = new PerspectiveTransform(img, this.width, this.height, false);
-            for (let i = this.polygon.points.length - 1; i >= 0; i--) {
-                this.polygon.points[i].updatePoint();
-                this.moveCornerPerspective(this.polygon.points[i]);
-            }
-            this.toggleDragImage();
-            if (TapDoorToUnlock) {
-                interact('#' + this.id).on('tap', (event: any) => {
-                    (<any>window).zoneImpl.run(() =>
-                        (<any>window).appImage[this.id].toggleDragImage(true));
-                });
-            }
+            setTimeout(()=>{
+                this.width = dataImage.width;
+                this.height = dataImage.height;
+                let img = document.getElementById(this.id);
+                this.perspective = new PerspectiveTransform(img, this.width, this.height, false);
+                for (let i = this.polygon.points.length - 1; i >= 0; i--) {
+                    this.polygon.points[i].updatePoint();
+                    this.moveCornerPerspective(this.polygon.points[i]);
+                }
+                this.toggleDragImage();
+                if (TapDoorToUnlock) {
+                    interact('#' + this.id).on('tap', (event: any) => {
+                        (<any>window).zoneImpl.run(() =>
+                            (<any>window).appImage[this.id].toggleDragImage(true));
+                    });
+                }
+            }, 50);
         };
         dataImage.src = this.parent.url;
     }
@@ -175,7 +177,53 @@ export class DisplayingImage {
             points[pointPosition].y < 0) {
             return true;
         }
-        return false;
+        return false || this._hasAngleError(points) || this._hasOrientationError(points) || this._hasSizeError(points);
+    }
+    private _hasAngleError(points: model.Point[]): boolean {
+        let groupsOfPoints = [
+            [points[1], points[2], points[0]],
+            [points[3], points[0], points[1]],
+            [points[2], points[1], points[3]],
+            [points[0], points[3], points[2]],
+        ];
+        return groupsOfPoints.some(groupOfPoints => {
+            let angle = this._getAngle(groupOfPoints[0], groupOfPoints[1], groupOfPoints[2]);
+            return (angle < 0.6 || angle > 2.8);
+        });
+    }
+    private _hasOrientationError(points: model.Point[]): boolean {
+        return points[0].y > points[2].y ||
+            points[0].y > points[3].y ||
+            points[1].y > points[2].y ||
+            points[1].y > points[3].y ||
+            points[0].x > points[1].x ||
+            points[0].x > points[3].x ||
+            points[2].x > points[1].x ||
+            points[2].x > points[3].x;
+    }
+    private _hasSizeError(points: model.Point[]): boolean {
+        let minumumSize = 40; 
+        return points[1].x - points[0].x < minumumSize ||
+            points[3].x - points[2].x < minumumSize ||
+            points[2].y - points[0].y < minumumSize ||
+            points[3].y - points[1].y < minumumSize;
+    }
+
+    /**
+     * Calculates the angle (in radians) between two vectors pointing outward from one center
+     *
+     * @param p0 first point
+     * @param p1 second point
+     * @param c center point
+     */
+    private _getAngle(p0: model.Point, p1: model.Point, c: model.Point) {
+        var p0c = Math.sqrt(Math.pow(c.x-p0.x,2)+
+                            Math.pow(c.y-p0.y,2)); // p0->c (b)   
+        var p1c = Math.sqrt(Math.pow(c.x-p1.x,2)+
+                            Math.pow(c.y-p1.y,2)); // p1->c (a)
+        var p0p1 = Math.sqrt(Math.pow(p1.x-p0.x,2)+
+                            Math.pow(p1.y-p0.y,2)); // p0->p1 (c)
+        return Math.acos((p1c*p1c+p0c*p0c-p0p1*p0p1)/(2*p1c*p0c));
     }
     // Move all points and update perspective image when the image is dragged
     dragImageListener(event: any) {

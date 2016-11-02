@@ -20,7 +20,7 @@ import * as models from '../lib/models';
     <div class="drag-container" id="drag-container"
       [ngStyle]="{'height': height + 'px' }"
       #dragContainer>
-      <img [src]="dataImageBaseSanitized" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" />
+      <img [src]="dataImageBaseSanitized" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" #mainImage />
       <template ngFor let-image [ngForOf]="images" let-i="index">
           <div class="imageUp" [id]="image.id" 
           [ngStyle]="{'width' : image.width + 'px', 'height': image.height + 'px', 'background-image': 'url(' + image.parent.url + ')' }">
@@ -100,22 +100,6 @@ export class OverlapperComponent implements OnInit {
   private imageBase: string;
   private dataImageBaseSanitized: SafeUrl;
   setImageBase(value: string) {
-    console.log(` image ${value} `);
-    let tmpImages: models.Image[] = [];
-    this.images.forEach((image: models.DisplayingImage) => {
-      tmpImages.push(
-        new models.Image(
-          image.parent.url,
-          new models.Polygon([
-            new models.Point(0, 0),
-            new models.Point(0, 0),
-            new models.Point(0, 0),
-            new models.Point(0, 0)
-          ])
-        )
-      );
-    });
-    this.onImagesChange([]);
     this.imageBase = value;
     this.dataImageBase = new Image();
     this.dataImageBase.onload = () => {
@@ -125,8 +109,23 @@ export class OverlapperComponent implements OnInit {
       this.zoom = this.zoom;
       this.updateWidthBase();
       setTimeout(() => {
+        let tmpImages: models.Image[] = [];
+        this.images.forEach((image: models.DisplayingImage) => {
+          tmpImages.push(
+            new models.Image(
+              image.parent.url,
+              new models.Polygon([
+                new models.Point(image.polygon.points[0].x * this.factor, image.polygon.points[0].y * this.factor),
+                new models.Point(image.polygon.points[1].x * this.factor, image.polygon.points[1].y * this.factor),
+                new models.Point(image.polygon.points[2].x * this.factor, image.polygon.points[2].y * this.factor),
+                new models.Point(image.polygon.points[3].x * this.factor, image.polygon.points[3].y * this.factor)
+              ])
+            )
+          );
+        });
+        this.onImagesChange([]);
         this.onImagesChange(tmpImages);
-      }, 0);
+      }, 50);
     };
     this.dataImageBase.src = value;
     this.dataImageBaseSanitized = this.domSanitizer.bypassSecurityTrustUrl(value);
@@ -135,18 +134,20 @@ export class OverlapperComponent implements OnInit {
   setWidth(value: number) {
     let previousWidth = this.width;
     this.width = value;
-    if (this.dataImageBase) {
+    if (this.dataImageBase.width > 0) {
       this.factor = this.dataImageBase.width / this.width;
       this.height = this.width * this.dataImageBase.height / this.dataImageBase.width;
       this.updatePointsOnZoom(this.zoom, this.zoom, previousWidth, value);
     } else {
-      this.height = 20;
+      this.height = this.width * 0.6;
       this.factor = 1;
     }
   }
   // Main image this.setImageBase(image);
   @Input('mainImage') set mainImage(image: string) {
-    this.setImageBase(image);
+    if(image !== this.imageBase) {
+      this.setImageBase(image);
+    }
   }
   // zoom
   get zoom(): number {
@@ -280,6 +281,8 @@ export class OverlapperComponent implements OnInit {
   @HostListener('window:resize', ['$event.target'])
   updateWidthFrame() {
     let rect = this.dragContainer.nativeElement.getBoundingClientRect();
-    this.setWidth(rect.width);
+    if(rect.width > 0) {
+      this.setWidth(rect.width);
+    }
   }
 }
