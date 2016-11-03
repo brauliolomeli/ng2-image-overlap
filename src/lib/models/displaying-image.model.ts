@@ -34,8 +34,8 @@ export class DisplayingImage {
         if (parent.polygon.points[3].x === 0) {
             // the polygon is not defined, define it according to image index
             let order = [2, 1, 3],
-                width = this.overlapperComponent.dataImageBase.width / 3,
-                height = this.overlapperComponent.dataImageBase.height / 3,
+                width = this.overlapperComponent.imageBase.width / 3,
+                height = this.overlapperComponent.imageBase.height / 3,
                 x = order[index % 3],
                 y = order[Math.floor(index / 3) % 3],
                 marginX = width / 10,
@@ -56,6 +56,8 @@ export class DisplayingImage {
         this.zoom = zoom;
         this.factor = factor;
         this.locationImageBase = locationImageBase;
+        this.width = parent.width;
+        this.height = parent.height;
         (<any>window).appImage[this.id] = this;
         if (polygonChanged) {
             for (let i = 0; i <= 3; i++) {
@@ -68,27 +70,19 @@ export class DisplayingImage {
         this.overlapperComponent.sendUpdatedPoint(imageIndex, pointIndex, absPoint.x, absPoint.y);
     }
     initPerspectiveTransform(TapDoorToUnlock: boolean) {
-        let dataImage = new Image();
-        dataImage.onload = () => {
-            setTimeout(()=>{
-                this.width = dataImage.width;
-                this.height = dataImage.height;
-                let img = document.getElementById(this.id);
-                this.perspective = new PerspectiveTransform(img, this.width, this.height, false);
-                for (let i = this.polygon.points.length - 1; i >= 0; i--) {
-                    this.polygon.points[i].updatePoint();
-                    this.moveCornerPerspective(this.polygon.points[i]);
-                }
-                this.toggleDragImage();
-                if (TapDoorToUnlock) {
-                    interact('#' + this.id).on('tap', (event: any) => {
-                        (<any>window).zoneImpl.run(() =>
-                            (<any>window).appImage[this.id].toggleDragImage(true));
-                    });
-                }
-            }, 50);
-        };
-        dataImage.src = this.parent.url;
+        let img = document.getElementById(this.id);
+        this.perspective = new PerspectiveTransform(img, this.width, this.height, false);
+        for (let i = this.polygon.points.length - 1; i >= 0; i--) {
+            this.polygon.points[i].updatePoint();
+            this.moveCornerPerspective(this.polygon.points[i]);
+        }
+        if (TapDoorToUnlock) {
+            interact('#' + this.id).on('tap', (event: any) => {
+                (<any>window).zoneImpl.run(() =>
+                    (<any>window).appImage[this.id].toggleDragImage(true));
+            });
+        }
+        setTimeout(() => this.toggleDragImage(), 0);
     }
     // Update perspective image after a point is dragged
     moveCornerPerspective(point: model.Point) {
