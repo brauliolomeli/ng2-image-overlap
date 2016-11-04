@@ -98,10 +98,14 @@ export class DisplayingImage {
                 }, 0);
         }
     }
+    lockChange() {
+        this.overlapperComponent.onLockChange();
+    }
     // Toggle dragging image
     toggleDragImage(toggle = false) {
         if (toggle) {
             this.imageLocked = !this.imageLocked;
+            this.lockChange();
         }
         if (this.imageLocked) {
             interact('.draggable' + this.id).draggable({ enabled: false });

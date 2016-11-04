@@ -86,6 +86,7 @@ import * as models from '../lib/models';
 })
 export class OverlapperComponent implements OnInit {
   @Output() updatePoint: any = new EventEmitter();
+  @Output() lockChange: any = new EventEmitter();
   widthBase: number = 0;
   heightBase: number = 0;
   locationImageBase: models.Point = new models.Point(0, 0);
@@ -277,6 +278,10 @@ export class OverlapperComponent implements OnInit {
       image.moveAll(dx, dy, this.locationImageBase);
     });
     return [dx, dy];
+  }
+  onLockChange(): void {
+    let locked  = this.images.every(image => image.imageLocked);
+    this.lockChange.emit(locked);
   }
   @HostListener('window:resize', ['$event.target'])
   updateWidthFrame() {
