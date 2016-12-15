@@ -22,7 +22,7 @@ import * as models from '../lib/models';
       [ngStyle]="{'height': height + 'px' }"
       #dragContainer>
       <img [src]="dataImageBaseSanitized" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" #mainImage 
-      (load)="reloadImages() />
+      (load)="reloadImages()" />
       <template ngFor let-image [ngForOf]="images" let-i="index">
           <on-ready [image]="image"></on-ready>
           <div class="imageUp" [id]="image.id" 
