@@ -129,25 +129,26 @@ export class OverlapperComponent implements OnInit {
     // }, 50);
     this.dataImageBaseSanitized = this.domSanitizer.bypassSecurityTrustUrl(value.url);
   }
-  //  (load)="reloadImages()
   reloadImages() {
-    //
-    let tmpImages: models.Image[] = [];
-      this.images.forEach((image: models.DisplayingImage) => {
-        tmpImages.push(
-          new models.Image(
-            image.parent.url,
-            new models.Polygon([
-              new models.Point(image.polygon.points[0].x * this.factor, image.polygon.points[0].y * this.factor),
-              new models.Point(image.polygon.points[1].x * this.factor, image.polygon.points[1].y * this.factor),
-              new models.Point(image.polygon.points[2].x * this.factor, image.polygon.points[2].y * this.factor),
-              new models.Point(image.polygon.points[3].x * this.factor, image.polygon.points[3].y * this.factor)
-            ])
-          )
-        );
-      });
-      this.onImagesChange([]);
-      this.onImagesChange(tmpImages);
+    console.log('reloadImages');
+    setTimeout(() => {
+      let tmpImages: models.Image[] = [];
+        this.images.forEach((image: models.DisplayingImage) => {
+          tmpImages.push(
+            new models.Image(
+              image.parent.url,
+              new models.Polygon([
+                new models.Point(image.polygon.points[0].x * this.factor, image.polygon.points[0].y * this.factor),
+                new models.Point(image.polygon.points[1].x * this.factor, image.polygon.points[1].y * this.factor),
+                new models.Point(image.polygon.points[2].x * this.factor, image.polygon.points[2].y * this.factor),
+                new models.Point(image.polygon.points[3].x * this.factor, image.polygon.points[3].y * this.factor)
+              ])
+            )
+          );
+        });
+        this.onImagesChange([]);
+        this.onImagesChange(tmpImages);
+    });
   }
   // Width
   setWidth(value: number) {
