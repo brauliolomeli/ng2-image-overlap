@@ -22,7 +22,7 @@ import * as models from '../lib/models';
       [ngStyle]="{'height': height + 'px' }"
       #dragContainer>
       <img [src]="dataImageBaseSanitized" class="imageDrag" id="imageBase" [ngStyle]="{'width' : widthBase + 'px'}" #mainImage 
-      (load)="reloadImages()" />
+      (load)="mainImageLoaded.emit()" />
       <template ngFor let-image [ngForOf]="images" let-i="index">
           <on-ready [image]="image"></on-ready>
           <div class="imageUp" [id]="image.id" 
@@ -87,6 +87,7 @@ import * as models from '../lib/models';
 })
 export class OverlapperComponent implements OnInit {
   @Output() updatePoint: any = new EventEmitter();
+  @Output() mainImageLoaded: any = new EventEmitter();
   @Output() lockChange: any = new EventEmitter();
   widthBase: number = 0;
   heightBase: number = 0;
@@ -109,46 +110,25 @@ export class OverlapperComponent implements OnInit {
     this.initImageBase();
     this.zoom = this.zoom;
     this.updateWidthBase();
-    // setTimeout(() => {
-    //   let tmpImages: models.Image[] = [];
-    //   this.images.forEach((image: models.DisplayingImage) => {
-    //     tmpImages.push(
-    //       new models.Image(
-    //         image.parent.url,
-    //         new models.Polygon([
-    //           new models.Point(image.polygon.points[0].x * this.factor, image.polygon.points[0].y * this.factor),
-    //           new models.Point(image.polygon.points[1].x * this.factor, image.polygon.points[1].y * this.factor),
-    //           new models.Point(image.polygon.points[2].x * this.factor, image.polygon.points[2].y * this.factor),
-    //           new models.Point(image.polygon.points[3].x * this.factor, image.polygon.points[3].y * this.factor)
-    //         ])
-    //       )
-    //     );
-    //   });
-    //   this.onImagesChange([]);
-    //   this.onImagesChange(tmpImages);
-    // }, 50);
-    this.dataImageBaseSanitized = this.domSanitizer.bypassSecurityTrustUrl(value.url);
-  }
-  reloadImages() {
-    console.log('reloadImages');
     setTimeout(() => {
       let tmpImages: models.Image[] = [];
-        this.images.forEach((image: models.DisplayingImage) => {
-          tmpImages.push(
-            new models.Image(
-              image.parent.url,
-              new models.Polygon([
-                new models.Point(image.polygon.points[0].x * this.factor, image.polygon.points[0].y * this.factor),
-                new models.Point(image.polygon.points[1].x * this.factor, image.polygon.points[1].y * this.factor),
-                new models.Point(image.polygon.points[2].x * this.factor, image.polygon.points[2].y * this.factor),
-                new models.Point(image.polygon.points[3].x * this.factor, image.polygon.points[3].y * this.factor)
-              ])
-            )
-          );
-        });
-        this.onImagesChange([]);
-        this.onImagesChange(tmpImages);
-    });
+      this.images.forEach((image: models.DisplayingImage) => {
+        tmpImages.push(
+          new models.Image(
+            image.parent.url,
+            new models.Polygon([
+              new models.Point(image.polygon.points[0].x * this.factor, image.polygon.points[0].y * this.factor),
+              new models.Point(image.polygon.points[1].x * this.factor, image.polygon.points[1].y * this.factor),
+              new models.Point(image.polygon.points[2].x * this.factor, image.polygon.points[2].y * this.factor),
+              new models.Point(image.polygon.points[3].x * this.factor, image.polygon.points[3].y * this.factor)
+            ])
+          )
+        );
+      });
+      this.onImagesChange([]);
+      this.onImagesChange(tmpImages);
+    }, 50);
+    this.dataImageBaseSanitized = this.domSanitizer.bypassSecurityTrustUrl(value.url);
   }
   // Width
   setWidth(value: number) {
