@@ -1,6 +1,6 @@
 {
   "name": "ng2-image-overlap",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "license": "MIT",
   "scripts": {
     "lint": "tslint src/**/*.ts",
@@ -25,7 +25,7 @@
   },
   "main": "./dist/index.js",
   "dependencies": {
-    "interact.js": "1.2.6"
+    "interact.js": "1.2.8"
   },
   "devDependencies": {
     "@angular/common": "2.0.0",
