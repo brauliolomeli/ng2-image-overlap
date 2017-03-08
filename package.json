@@ -42,7 +42,7 @@
     "codelyzer": "~0.0.26",
     "tslint": "3.13.0",
     "typescript": "2.0.2",
-    "@types/interact.js": "1.0.20",
+    "@types/interact.js": "1.0.22",
     "ts-node": "1.2.1"
   }
 }
