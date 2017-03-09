@@ -162,6 +162,7 @@ export class OverlapperComponent implements OnInit {
   setLockImages(lockImages: boolean) {
     this.images.forEach(image => {
       image.imageLocked = lockImages;
+      image.toggleDragImage();
     });
   }
   sendUpdatedPoint(imageIndex: number, pointIndex: number, newX: number, newY: number) {
